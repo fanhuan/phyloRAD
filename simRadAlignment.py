@@ -7,20 +7,23 @@ from scipy.stats import poisson
 
 #Get command-line arguments
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20150812.1'
+version = '%prog 20150831.1'
 parser = OptionParser()
-#parser.add_option('-i', dest='infile', help='input file (stdin if none)', default=False)
 parser.add_option('-i', dest='infile', help='prefix of infiles', default=False)
-parser.add_option('-d', dest='outdir', help='directory for output files', default=False)
-parser.add_option('-e', dest='enzyme', help='restriction enzyme, SbfI(default), EcoRI, PstI, ApeKI or MseI', default='SbfI')
-parser.add_option('-r', dest='rate', type = float, help='rate of drop one tag', default=0.1)
-parser.add_option('-v', dest='verbose', action='store_false', help='turn off print screen', default=True)
-parser.add_option('-n', dest='noOut', action='store_true', help='only count sites', default=False)
+parser.add_option('-d', dest='outdir', help='directory for output files',
+                  default=False)
+parser.add_option('-e', dest='enzyme', help='restriction enzyme, SbfI(default), EcoRI, PstI, ApeKI or MseI',
+                  default='SbfI')
+parser.add_option('-r', dest='rate', type = float, help='rate of drop one tag',
+                  default=0.1)
+parser.add_option('-a', dest='all', action='store_true',
+                  help='out put shared-by-all sites only', default=False)
+parser.add_option('-n', dest='noOut', action='store_true', help='only count sites',
+                  default=False)
 (options, args) = parser.parse_args()
 
 infile   = options.infile
 outdir  = options.outdir
-verbose  = options.verbose
 noOut    = options.noOut
 
 #Define restriction enzyme recognition site
@@ -31,8 +34,8 @@ cutSite = SiteDic[options.enzyme]
 
 
 #parse genome fasta file to get all rad-tags
-if verbose:
-    print 'Reading input sequences'
+
+print 'Reading input sequences'
 
 if outdir == False:
     print('Quitting the program. No output directory specified.')
@@ -111,6 +114,7 @@ for j in range(1,block):
         else:
             print 'Did not skip the empty line properly at block'
             print j,i
+alignment.close()
 
 print 'Species list:\n'
 print sample
@@ -173,15 +177,13 @@ for record in SeqIO.parse(handle, 'fasta'):
             taglist.append(str(dashlist[-1])+'_R')
             tags.append(last[:100])
 
-    if verbose:
-        print record.id
-        print 'Number of cut sites:', nCut
-        print 'Number of rad-tags:', len(tags)
+    print record.id
+    print 'Number of cut sites:', nCut
+    print 'Number of rad-tags:', len(tags)
 
     #write reads to file
     if not noOut:
-        if verbose:
-            print 'Write tags to file'
+        print 'Write tags to file'
         output = open(outdir+'/'+record.id+'_RAD.fa', 'w')
         m = 0
         for read in tags:
@@ -211,6 +213,8 @@ rest.write('\t%s\n'%('Total'))
 select.write('\t%s\n'%('Total'))
 sum_r = []
 sum_s = []
+
+
 for item in fullset:
     rest.write('%s'%(item))
     total = 0
@@ -223,6 +227,7 @@ for item in fullset:
     sum_r.append(total)
     rest.write('\t%d\n'%total)
 
+summary = {}
 for item in selectset:
     select.write('%s'%(item))
     total = 0
@@ -234,6 +239,7 @@ for item in selectset:
             select.write('\t%d'%(0))
     sum_s.append(total)
     select.write('\t%d\n'%total)
+    summary[item] = total
 
 print 'In the alignment:'
 hist = collections.Counter(sum_r)
@@ -246,3 +252,12 @@ hist = collections.Counter(sum_s)
 print hist
 print float(hist[sn])/len(selectset)*100,' percent of restriction sites are shared by all.'
 select.close()
+
+if options.all:
+    os.system('mkdir {}_all'.format(outdir))
+    for id in sample:
+        handle_in = open(outdir+'/'+id+'_RAD.fa')
+        handle_out = open(outdir+'_all/'+id+'_RAD.fa','w')
+        for record in SeqIO.parse(handle_in, 'fasta'):
+            if summary[record.id[len(id)+1:]] == len(sample):
+                handle_out.write('>%s\n%s\n' % (record.id, record.seq))
