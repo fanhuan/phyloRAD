@@ -7,7 +7,7 @@ from scipy.stats import poisson
 
 #Get command-line arguments
 Usage = "%prog [options] -i <input filename>"
-version = '%prog 20150831.1'
+version = '%prog 20150903.1'
 parser = OptionParser()
 parser.add_option('-i', dest='infile', help='prefix of infiles', default=False)
 parser.add_option('-d', dest='outdir', help='directory for output files',
@@ -20,11 +20,14 @@ parser.add_option('-a', dest='all', action='store_true',
                   help='out put shared-by-all sites only', default=False)
 parser.add_option('-n', dest='noOut', action='store_true', help='only count sites',
                   default=False)
+parser.add_option('-v', dest='verbose', action='store_true', help='verbose',
+                  default=False)
 (options, args) = parser.parse_args()
 
 infile   = options.infile
 outdir  = options.outdir
 noOut    = options.noOut
+verbose = options.verbose
 
 #Define restriction enzyme recognition site
 
@@ -34,8 +37,8 @@ cutSite = SiteDic[options.enzyme]
 
 
 #parse genome fasta file to get all rad-tags
-
-print 'Reading input sequences'
+if verbose:
+    print 'Reading input sequences'
 
 if outdir == False:
     print('Quitting the program. No output directory specified.')
@@ -43,44 +46,34 @@ if outdir == False:
 
 
 #output directory
+
 if outdir in os.listdir('./'):
-    answer = raw_input('{} exists, overwrite? Y/N\n'.format(outdir))
-    if answer == 'Y' or answer =='y':
-        print('{} is going to be overwritten'.format(outdir))
+    if verbose:
+        answer = raw_input('{} exists, overwrite? Y/N\n'.format(outdir))
+        if answer == 'Y' or answer =='y':
+            print('{} is going to be overwritten'.format(outdir))
+            os.system('rm -r -f {}/*'.format(outdir))
+            os.system('rm -f {}/*'.format(outdir))
+        elif answer == 'N' or answer =='n':
+            print('Quitting the program. Please rerun with new output directory.')
+            sys.exit(2)
+        else:
+            print('Wrong keyboard input, exit')
+            sys.exit(2)
+    else:
         os.system('rm -r -f {}/*'.format(outdir))
         os.system('rm -f {}/*'.format(outdir))
-    elif answer == 'N' or answer =='n':
-        print('Quitting the program. Please rerun with new output directory.')
-        sys.exit(2)
-    else:
-        print('Wrong keyboard input, exit')
-        sys.exit(2)
 else:
     os.system('mkdir {}'.format(outdir))
 
-'''
-#split the input file into half, fasta and alignment
-splitLine = int(subprocess.check_output('grep -n Alignment {}'.format(infile),shell=True).split(':')[0])
-treeline = int(subprocess.check_output('grep -n PHYLIP {}'.format(infile),shell=True).split(':')[0])
-totaline = int(subprocess.check_output('wc -l {}'.format(infile),shell=True).split()[0])
-
-command = 'head -n {} {} > {}'.format(splitLine-1, infile, infile+'.fa')
-print command
-os.system(command)
-command = 'tail -n {} {} > {}'.format(totaline-splitLine,infile, infile+'.temp')
-print command
-os.system(command)
-command = 'head -n {} {} > {}'.format(treeline-splitLine-1, infile+'.temp', infile+'.alignment')
-print command
-os.system(command)
-os.system('rm -f {}'.format(infile+'.temp'))
-'''
 alignment = open(infile+'.phy')
 
 sample = [] #sample list
 dic = {} #dash dictionary dictionary
 dashtotal = {}
-print 'construct the dash dictionary: where the dashes are'
+
+if verbose:
+    print 'construct the dash dictionary: where the dashes are'
 
 # read the number of species on the second line
 sn = int(alignment.readline().split()[0])
@@ -112,14 +105,15 @@ for j in range(1,block):
                 dic[sample[i]][dash[0]+ 1 + 60*j- dashtotal[sample[i]]]= dashtotal[sample[i]]+len(dash)
                 dashtotal[sample[i]] = dashtotal[sample[i]]+len(dash)
         else:
-            print 'Did not skip the empty line properly at block'
-            print j,i
+            if verbose:
+                print 'Did not skip the empty line properly at block'
+                print j,i
 alignment.close()
 
-print 'Species list:\n'
-print sample
-alignment.close()
-print 'START PROCESSING THE FASTA FILE'
+if verbose:
+    print 'Species list:\n'
+    print sample
+    print 'START PROCESSING THE FASTA FILE'
 handle = open(infile+'.fas')
 dashDic_r = {} # real
 dashDic_s = {} # after drop some random site
@@ -176,14 +170,15 @@ for record in SeqIO.parse(handle, 'fasta'):
         if len(last) > 100:
             taglist.append(str(dashlist[-1])+'_R')
             tags.append(last[:100])
-
-    print record.id
-    print 'Number of cut sites:', nCut
-    print 'Number of rad-tags:', len(tags)
+    if verbose:
+        print record.id
+        print 'Number of cut sites:', nCut
+        print 'Number of rad-tags:', len(tags)
 
     #write reads to file
     if not noOut:
-        print 'Write tags to file'
+        if verbose:
+            print 'Write tags to file'
         output = open(outdir+'/'+record.id+'_RAD.fa', 'w')
         m = 0
         for read in tags:
@@ -241,17 +236,26 @@ for item in selectset:
     select.write('\t%d\n'%total)
     summary[item] = total
 
-print 'In the alignment:'
-hist = collections.Counter(sum_r)
-print hist
-print float(hist[sn])/len(fullset)*100,' percent of restriction sites are shared by all.'
-rest.close()
 
-print 'In the output reads files:'
-hist = collections.Counter(sum_s)
-print hist
-print float(hist[sn])/len(selectset)*100,' percent of restriction sites are shared by all.'
+hist1 = collections.Counter(sum_r)
+rest.close()
+hist2 = collections.Counter(sum_s)
 select.close()
+
+if verbose:
+    print 'In the alignment:'
+    print hist
+    print float(hist1[sn])/len(fullset)*100,' percent of restriction sites are shared by all.'
+
+
+    print 'In the output reads files:'
+
+    print hist
+    print float(hist2[sn])/len(selectset)*100,' percent of restriction sites are shared by all.'
+
+else:
+    print float(hist1[sn])/len(fullset)*100
+    print float(hist2[sn])/len(selectset)*100
 
 if options.all:
     os.system('mkdir {}_all'.format(outdir))
