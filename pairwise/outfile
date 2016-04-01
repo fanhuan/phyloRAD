@@ -1,0 +1,158 @@
+
+  34 Populations
+
+Fitch-Margoliash method version 3.69
+
+                  __ __             2
+                  \  \   (Obs - Exp)
+Sum of squares =  /_ /_  ------------
+                                2
+                   i  j      Obs
+
+Negative branch lengths not allowed
+
+
+  +Qengelman1
+  ! 
+  !   +Qdurata   
+  ! +-5 
+  ! ! +Qdouglasi1
+  ! ! 
+  ! !       +Qnigra    
+  ! !    +-20  
+  ! ! +-15  +Qhemisphae
+  ! ! !  !  
+  ! ! !  +Qchrysole1
+  ! ! ! 
+  ! ! !       +Qsagraeana
+  6-4 !       !  
+  ! ! !    +-27     +Qsagraea1 
+  ! ! !    !  !  +-26  
+  ! ! !    !  !  !  +Qsagraean1
+  ! ! !    !  +-28  
+  ! ! !    !     !  +Qoleoide5 
+  ! ! !    !     !  !  
+  ! ! !    !     +-25     +Qoleoides4
+  ! ! !    !        !  +-24  
+  ! ! !    !        !  !  !  +Qoleoides3
+  ! ! !    !        +-22  +-23  
+  ! +-3    !           !     +Qoleoides2
+  !   ! +-21           !  
+  !   ! !  !           +Qoleoides1
+  !   ! !  !  
+  !   ! !  !        +Qvirginia4
+  !   ! !  !     +-32  
+  !   ! !  !     !  +Qvirginia3
+  !   ! !  !  +-31  
+  !   ! !  !  !  !  +Qvirginia2
+  !   ! !  !  !  +-30  
+  !   ! !  !  !     +Qvirginia1
+  !   ! !  +-29  
+  !   ! !     !  +Qminima_F3
+  !   ! !     !  !  
+  !   ! !     !  !  +Qminima_F2
+  !   +-9     +-18  !  
+  !     !        !  !           +Qgeminata3
+  !     !        !  !        +-13  
+  !     !        +-17     +-12  +Qgeminata2
+  !     !           !     !  !  
+  !     !           !  +-14  +Qgeminata4
+  !     !           !  !  !  
+  !     !           +-19  +Qminima_FL
+  !     !              !  
+  !     !              !  +Qminima_F1
+  !     !              +-16  
+  !     !                 +Qgeminata1
+  !     ! 
+  !     !  +Qfusiform3
+  !     !  !  
+  !     +-10  +Qfusiform4
+  !        !  !  
+  !        +-11 +Qfusiform1
+  !           ! ! 
+  !           +-7 +Qfusiform2
+  !             ! ! 
+  !             +-8   +Qbrandege2
+  !               ! +-1 
+  !               +-2 +Qbrandege3
+  !                 ! 
+  !                 +Qbrandege1
+  ! 
+  +Qarizonica
+
+
+remember: this is an unrooted tree!
+
+Sum of squares =     0.00429
+
+Average percent standard deviation =     0.19574
+
+Between        And            Length
+-------        ---            ------
+   6          Qengelman1        0.00511
+   6             4              0.00280
+   4             5              0.00120
+   5          Qdurata           0.00901
+   5          Qdouglasi1        0.00953
+   4             3              0.00274
+   3            15              0.00211
+  15            20              0.01659
+  20          Qnigra            0.00823
+  20          Qhemisphae        0.00826
+  15          Qchrysole1        0.01466
+   3             9              0.00536
+   9            21              0.00034
+  21            27              0.00084
+  27          Qsagraeana        0.00716
+  27            28              0.00037
+  28            26              0.00029
+  26          Qsagraea1         0.00530
+  26          Qsagraean1        0.00686
+  28            25              0.00090
+  25          Qoleoide5         0.00699
+  25            22              0.00030
+  22            24              0.00057
+  24          Qoleoides4        0.00624
+  24            23              0.00022
+  23          Qoleoides3        0.00596
+  23          Qoleoides2        0.00560
+  22          Qoleoides1        0.00659
+  21            29              0.00069
+  29            31              0.00095
+  31            32              0.00026
+  32          Qvirginia4        0.00329
+  32          Qvirginia3        0.00625
+  31            30              0.00056
+  30          Qvirginia2        0.00676
+  30          Qvirginia1        0.00488
+  29            18              0.00027
+  18          Qminima_F3        0.01019
+  18            17              0.00011
+  17          Qminima_F2        0.00767
+  17            19              0.00016
+  19            14              0.00007
+  14            12              0.00040
+  12            13              0.00048
+  13          Qgeminata3        0.00507
+  13          Qgeminata2        0.00446
+  12          Qgeminata4        0.00725
+  14          Qminima_FL        0.00751
+  19            16              0.00068
+  16          Qminima_F1        0.00709
+  16          Qgeminata1        0.00763
+   9            10              0.00049
+  10          Qfusiform3        0.00750
+  10            11              0.00012
+  11          Qfusiform4        0.00750
+  11             7              0.00045
+   7          Qfusiform1        0.00771
+   7             8              0.00054
+   8          Qfusiform2        0.00692
+   8             2              0.00126
+   2             1              0.00013
+   1          Qbrandege2        0.00615
+   1          Qbrandege3        0.00517
+   2          Qbrandege1        0.00621
+   6          Qarizonica        0.00737
+
+
