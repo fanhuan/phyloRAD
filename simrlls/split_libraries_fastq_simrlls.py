@@ -84,7 +84,7 @@ sba = {} #{sample name: list of locus
 for seq_record in SeqIO.parse(input_handle,"fastq"):
     if rate < random.random():
         sample = seq_record.id.split('_')[2]
-	    flag = seq_record.id.split('_')[5]
+        flag = seq_record.id.split('_')[5]
         if sample in samples:
             if options.hap:
             	if flag == '0':
