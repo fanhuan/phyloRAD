@@ -44,7 +44,7 @@ def is_exe(fpath):
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20160301.1'
+version = '%prog 20160401.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-i", dest = "input",
                   help = "fastq file simulated from simrlls")
@@ -52,6 +52,9 @@ parser.add_option("-r", dest = "rate", type = float, default = 0,
                   help = "dropout rate")
 parser.add_option("-d", dest = "dir", default = "test",
                   help = "output directory for fasta files after seperation, default = test")
+parser.add_option("-H", dest = "hap", action = 'store_true',
+                  help = "keep only 1 tag/sample/locus, default = false")
+                
 
 (options, args) = parser.parse_args()
 
@@ -81,12 +84,20 @@ sba = {} #{sample name: list of locus
 for seq_record in SeqIO.parse(input_handle,"fastq"):
     if rate < random.random():
         sample = seq_record.id.split('_')[2]
+	    flag = seq_record.id.split('_')[5]
         if sample in samples:
-            samples[sample].write('>'+seq_record.id+'\n')
-            samples[sample].write(str(seq_record.seq[6:])+'\n')
+            if options.hap:
+            	if flag == '0':
+            		samples[sample].write('>'+seq_record.id+'\n')
+            		samples[sample].write(str(seq_record.seq[6:])+'\n')
+            else:
+            	samples[sample].write('>'+seq_record.id+'\n')
+            	samples[sample].write(str(seq_record.seq[6:])+'\n')
             sba[sample].append(seq_record.id.split('_')[1][5:])
         else:
             samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
+            samples[sample].write('>'+seq_record.id+'\n')
+            samples[sample].write(str(seq_record.seq[6:])+'\n')
             sba[sample]=[seq_record.id.split('_')[1][5:]]
 for key in samples:
     samples[key].close()
