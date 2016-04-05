@@ -44,7 +44,7 @@ def is_exe(fpath):
 
 
 usage = "usage: %prog [args]"
-version = '%prog 20160405.1'
+version = '%prog 20160405.2'
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', dest = "input", action='append')
 parser.add_argument("-r", dest = "rate", type = float, default = 0,
