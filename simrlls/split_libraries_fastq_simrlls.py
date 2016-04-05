@@ -43,30 +43,22 @@ def is_exe(fpath):
 
 
 
-usage = "usage: %prog [options]"
-version = '%prog 20160401.1'
-parser = OptionParser(usage = usage, version = version)
-parser.add_option("-i", dest = "input",
-                  help = "fastq file simulated from simrlls")
-parser.add_option("-r", dest = "rate", type = float, default = 0,
+usage = "usage: %prog [args]"
+version = '%prog 20160405.1'
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', dest = "input", action='append')
+parser.add_argument("-r", dest = "rate", type = float, default = 0,
                   help = "dropout rate")
-parser.add_option("-d", dest = "dir", default = "test",
+parser.add_argument("-d", dest = "dir", default = "test",
                   help = "output directory for fasta files after seperation, default = test")
-parser.add_option("-H", dest = "hap", action = 'store_true',
+parser.add_argument("-H", dest = "hap", action = 'store_true',
                   help = "keep only 1 tag/sample/locus, default = false")
-                
+args = parser.parse_args()
 
-(options, args) = parser.parse_args()
+rate = args.rate
+outputDir = args.dir
 
-input_handle = smartopen(options.input)
-rate = options.rate
-outputDir = options.dir
-
-###check user input:
-if not os.path.exists(options.input):
-    print('Cannot find input file {}'.format(options.input))
-    sys.exit(2)
-
+###Set up output folder:
 if os.path.exists(outputDir+'_r'+str(rate)):
     print('The output directory {}_r{} already exist.'.format(outputDir,str(rate)))
     print('It is going to be over written.')
@@ -81,24 +73,27 @@ os.system('mkdir {}_r{}_sba'.format(outputDir,str(rate)))
 from Bio import SeqIO
 samples = {} # {sample name: sample output file handle}
 sba = {} #{sample name: list of locus
-for seq_record in SeqIO.parse(input_handle,"fastq"):
-    if rate < random.random():
-        sample = seq_record.id.split('_')[2]
-        flag = seq_record.id.split('_')[5]
-        if sample in samples:
-            if options.hap:
-            	if flag == '0':
-            		samples[sample].write('>'+seq_record.id+'\n')
-            		samples[sample].write(str(seq_record.seq[6:])+'\n')
+
+for i, inputfile in enumerate(args.input):
+    input_handle = smartopen(inputfile)
+    for seq_record in SeqIO.parse(input_handle,"fastq"):
+        if rate < random.random():
+            sample = seq_record.id.split('_')[2]+'_'+str(i+1)
+            flag = seq_record.id.split('_')[5]
+            if sample in samples:
+                if args.hap:
+                    if flag == '0':
+                        samples[sample].write('>'+seq_record.id+'\n')
+                        samples[sample].write(str(seq_record.seq[6:])+'\n')
+                else:
+                    samples[sample].write('>'+seq_record.id+'\n')
+                    samples[sample].write(str(seq_record.seq[6:])+'\n')
+                sba[sample].append(seq_record.id.split('_')[1][5:])
             else:
-            	samples[sample].write('>'+seq_record.id+'\n')
-            	samples[sample].write(str(seq_record.seq[6:])+'\n')
-            sba[sample].append(seq_record.id.split('_')[1][5:])
-        else:
-            samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
-            samples[sample].write('>'+seq_record.id+'\n')
-            samples[sample].write(str(seq_record.seq[6:])+'\n')
-            sba[sample]=[seq_record.id.split('_')[1][5:]]
+                samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
+                samples[sample].write('>'+seq_record.id+'\n')
+                samples[sample].write(str(seq_record.seq[6:])+'\n')
+                sba[sample]=[seq_record.id.split('_')[1][5:]]
 for key in samples:
     samples[key].close()
 
@@ -106,14 +101,25 @@ for key in samples:
 input_handle.seek(0) #back to the beginning of the file
 sba_list = list(reduce(set.intersection,map(set,sba.values())))
 samples_sba = {}
-for seq_record in SeqIO.parse(input_handle,"fastq"):
-    if seq_record.id.split('_')[1][5:] in sba_list:
-        sample = seq_record.id.split('_')[2]
-        if sample in samples_sba:
-            samples_sba[sample].write('>'+seq_record.id+'\n')
-            samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-        else:
-            samples_sba[sample] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'.fa','w')
+
+for i, inputfile in enumerate(args.input):
+    input_handle = smartopen(inputfile)
+    for seq_record in SeqIO.parse(input_handle,"fastq"):
+        if seq_record.id.split('_')[1][5:] in sba_list:
+            sample = seq_record.id.split('_')[2]+'_'+str(i+1)
+            flag = seq_record.id.split('_')[5]
+            if sample in samples_sba:
+                if args.hap:
+                    if flag == '0':
+                        samples_sba[sample].write('>'+seq_record.id+'\n')
+                        samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+                else:
+                    samples_sba[sample].write('>'+seq_record.id+'\n')
+                    samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+            else:
+                samples_sba[sample] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'.fa','w')
+                samples_sba[sample].write('>'+seq_record.id+'\n')
+                samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
 
 for key in samples_sba:
-    samples[key].close()
+    samples_sba[key].close()
