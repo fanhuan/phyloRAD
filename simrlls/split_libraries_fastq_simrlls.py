@@ -44,7 +44,7 @@ def is_exe(fpath):
 
 
 usage = "usage: %prog [args]"
-version = '%prog 20160405.2'
+version = '%prog 20160406.1'
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', dest = "input", action='append')
 parser.add_argument("-r", dest = "rate", type = float, default = 0,
@@ -75,7 +75,7 @@ samples = {} # {sample name: sample output file handle}
 sba = {} #{sample name: list of locus
 
 if len(args.input) == 1:
-	input_handle = smartopen(inputfile)
+	input_handle = smartopen(args.input)
 	for seq_record in SeqIO.parse(input_handle,"fastq"):
 		if rate < random.random():
 			sample = seq_record.id.split('_')[2]
@@ -119,10 +119,11 @@ if len(args.input) == 2:
 					samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 				sba[sample].append(rec1.id.split('_')[1][5:])
 			else:
-				samples[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'_R1.fa','w')
+                os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
+				samples[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R1.fa','w')
 				samples[sample+'_1'].write('>'+rec1.id+'\n')
 				samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-				samples[sample+'_2'] = open(outputDir+'_r'+str(rate)+'/'+sample+'_R2.fa','w')
+				samples[sample+'_2'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R2.fa','w')
 				samples[sample+'_2'].write('>'+rec2.id+'\n')
 				samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 				sba[sample]=[rec1.id.split('_')[1][5:]]
@@ -147,6 +148,7 @@ if len(args.input) > 2:
 						samples[sample].write(str(seq_record.seq[6:])+'\n')
 					sba[sample].append(seq_record.id.split('_')[1][5:])
 				else:
+                    os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
 					samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
 					samples[sample].write('>'+seq_record.id+'\n')
 					samples[sample].write(str(seq_record.seq[6:])+'\n')
@@ -201,10 +203,11 @@ if len(args.input) == 2:
 					samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
 					samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 			else:
-				samples_sba[sample+'_1'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'_R1.fa','w')
+                os.system('mkdir {}_r{}_sba/{}'.format(outputDir,str(rate),sample))
+				samples_sba[sample+'_1'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'/'+sample+'_R1.fa','w')
 				samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
 				samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-				samples_sba[sample+'_2'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'_R2.fa','w')
+				samples_sba[sample+'_2'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'/'+sample+'_R2.fa','w')
 				samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
 				samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 	f1.close()
