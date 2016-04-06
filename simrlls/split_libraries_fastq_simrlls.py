@@ -74,52 +74,161 @@ from Bio import SeqIO
 samples = {} # {sample name: sample output file handle}
 sba = {} #{sample name: list of locus
 
-for i, inputfile in enumerate(args.input):
-    input_handle = smartopen(inputfile)
-    for seq_record in SeqIO.parse(input_handle,"fastq"):
-        if rate < random.random():
-            sample = seq_record.id.split('_')[2]+'_'+str(i+1)
-            flag = seq_record.id.split('_')[5]
-            if sample in samples:
-                if args.hap:
-                    if flag == '0':
-                        samples[sample].write('>'+seq_record.id+'\n')
-                        samples[sample].write(str(seq_record.seq[6:])+'\n')
-                else:
-                    samples[sample].write('>'+seq_record.id+'\n')
-                    samples[sample].write(str(seq_record.seq[6:])+'\n')
-                sba[sample].append(seq_record.id.split('_')[1][5:])
-            else:
-                samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
-                samples[sample].write('>'+seq_record.id+'\n')
-                samples[sample].write(str(seq_record.seq[6:])+'\n')
-                sba[sample]=[seq_record.id.split('_')[1][5:]]
-for key in samples:
-    samples[key].close()
+if len(args.input) == 1:
+	input_handle = smartopen(inputfile)
+	for seq_record in SeqIO.parse(input_handle,"fastq"):
+		if rate < random.random():
+			sample = seq_record.id.split('_')[2]
+			flag = seq_record.id.split('_')[5]
+			if sample in samples:
+				if args.hap:
+					if flag == '0':
+						samples[sample].write('>'+seq_record.id+'\n')
+						samples[sample].write(str(seq_record.seq[6:])+'\n')
+				else:
+					samples[sample].write('>'+seq_record.id+'\n')
+					samples[sample].write(str(seq_record.seq[6:])+'\n')
+				sba[sample].append(seq_record.id.split('_')[1][5:])
+			else:
+				samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
+				samples[sample].write('>'+seq_record.id+'\n')
+				samples[sample].write(str(seq_record.seq[6:])+'\n')
+				sba[sample]=[seq_record.id.split('_')[1][5:]]
+
+
+if len(args.input) == 2:
+	f1 = gzip.open(args.input[0],'rt')
+	f2 = gzip.open(args.input[1],'rt')
+	recs1 = SeqIO.parse(f1, 'fastq')
+	recs2 = SeqIO.parse(f2, 'fastq')
+	for rec1, rec2 in zip(recs1, recs2):
+		if rate < random.random():
+			sample = rec1.id.split('_')[2]
+			flag = rec1.id.split('_')[5]
+			if sample+'_1' in samples:
+				if args.hap:
+					if flag == '0':
+						samples[sample+'_1'].write('>'+rec1.id+'\n')
+						samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+						samples[sample+'_2'].write('>'+rec2.id+'\n')
+						samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+				else:
+					samples[sample+'_1'].write('>'+rec1.id+'\n')
+					samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+					samples[sample+'_2'].write('>'+rec2.id+'\n')
+					samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+				sba[sample].append(rec1.id.split('_')[1][5:])
+			else:
+				samples[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'_R1.fa','w')
+				samples[sample+'_1'].write('>'+rec1.id+'\n')
+				samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+				samples[sample+'_2'] = open(outputDir+'_r'+str(rate)+'/'+sample+'_R2.fa','w')
+				samples[sample+'_2'].write('>'+rec2.id+'\n')
+				samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+				sba[sample]=[rec1.id.split('_')[1][5:]]
+	f1.close()
+	f2.close()
+
+
+if len(args.input) > 2:
+	for i, inputfile in enumerate(args.input):
+		input_handle = smartopen(inputfile)
+		for seq_record in SeqIO.parse(input_handle,"fastq"):
+			if rate < random.random():
+				sample = seq_record.id.split('_')[2]+'_'+str(i+1)
+				flag = seq_record.id.split('_')[5]
+				if sample in samples:
+					if args.hap:
+						if flag == '0':
+							samples[sample].write('>'+seq_record.id+'\n')
+							samples[sample].write(str(seq_record.seq[6:])+'\n')
+					else:
+						samples[sample].write('>'+seq_record.id+'\n')
+						samples[sample].write(str(seq_record.seq[6:])+'\n')
+					sba[sample].append(seq_record.id.split('_')[1][5:])
+				else:
+					samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
+					samples[sample].write('>'+seq_record.id+'\n')
+					samples[sample].write(str(seq_record.seq[6:])+'\n')
+					sba[sample]=[seq_record.id.split('_')[1][5:]]
+	for key in samples:
+		samples[key].close()
 
 # Make the sba directory
-input_handle.seek(0) #back to the beginning of the file
+#for inputfile in args.input:
+#	input_handle = smartopen(inputfile)
+#	input_handle.seek(0) #back to the beginning of the file
 sba_list = list(reduce(set.intersection,map(set,sba.values())))
 samples_sba = {}
 
-for i, inputfile in enumerate(args.input):
-    input_handle = smartopen(inputfile)
-    for seq_record in SeqIO.parse(input_handle,"fastq"):
-        if seq_record.id.split('_')[1][5:] in sba_list:
-            sample = seq_record.id.split('_')[2]+'_'+str(i+1)
-            flag = seq_record.id.split('_')[5]
-            if sample in samples_sba:
-                if args.hap:
-                    if flag == '0':
-                        samples_sba[sample].write('>'+seq_record.id+'\n')
-                        samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-                else:
-                    samples_sba[sample].write('>'+seq_record.id+'\n')
-                    samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-            else:
-                samples_sba[sample] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'.fa','w')
-                samples_sba[sample].write('>'+seq_record.id+'\n')
-                samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+if len(args.input) == 1:
+	for seq_record in SeqIO.parse(input_handle,"fastq"):
+		if seq_record.id.split('_')[1][5:] in sba_list:
+			sample = seq_record.id.split('_')[2]+'_'+str(i+1)
+			flag = seq_record.id.split('_')[5]
+			if sample in samples_sba:
+				if args.hap:
+					if flag == '0':
+						samples_sba[sample].write('>'+seq_record.id+'\n')
+						samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+				else:
+					samples_sba[sample].write('>'+seq_record.id+'\n')
+					samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+			else:
+				samples_sba[sample] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'.fa','w')
+				samples_sba[sample].write('>'+seq_record.id+'\n')
+				samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+
+if len(args.input) == 2:
+	f1 = gzip.open(args.input[0],'rt')
+	f2 = gzip.open(args.input[1],'rt')
+	recs1 = SeqIO.parse(f1, 'fastq')
+	recs2 = SeqIO.parse(f2, 'fastq')
+	for rec1, rec2 in zip(recs1, recs2):
+		if rec1.id.split('_')[1][5:] in sba_list:
+			sample = rec1.id.split('_')[2]
+			flag = rec1.id.split('_')[5]
+			if sample+'_1' in samples_sba:
+				if args.hap:
+					if flag == '0':
+						samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
+						samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+						samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
+						samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+				else:
+					samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
+					samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+					samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
+					samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+			else:
+				samples_sba[sample+'_1'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'_R1.fa','w')
+				samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
+				samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+				samples_sba[sample+'_2'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'_R2.fa','w')
+				samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
+				samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+	f1.close()
+	f2.close()
+
+if len(args.input) > 2:
+	for i, inputfile in enumerate(args.input):
+		input_handle = smartopen(inputfile)
+		for seq_record in SeqIO.parse(input_handle,"fastq"):
+			if seq_record.id.split('_')[1][5:] in sba_list:
+				sample = seq_record.id.split('_')[2]+'_'+str(i+1)
+				flag = seq_record.id.split('_')[5]
+				if sample in samples_sba:
+					if args.hap:
+						if flag == '0':
+							samples_sba[sample].write('>'+seq_record.id+'\n')
+							samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+					else:
+						samples_sba[sample].write('>'+seq_record.id+'\n')
+						samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+				else:
+					samples_sba[sample] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'.fa','w')
+					samples_sba[sample].write('>'+seq_record.id+'\n')
+					samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
 
 for key in samples_sba:
     samples_sba[key].close()
