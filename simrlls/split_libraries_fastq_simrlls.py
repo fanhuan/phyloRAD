@@ -75,7 +75,7 @@ samples = {} # {sample name: sample output file handle}
 sba = {} #{sample name: list of locus
 
 if len(args.input) == 1:
-	input_handle = smartopen(args.input)
+	input_handle = smartopen(args.input[0])
 	for seq_record in SeqIO.parse(input_handle,"fastq"):
 		if rate < random.random():
 			sample = seq_record.id.split('_')[2]
