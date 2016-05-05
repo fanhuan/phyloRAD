@@ -44,7 +44,7 @@ def is_exe(fpath):
 
 
 usage = "usage: %prog [args]"
-version = '%prog 20160406.1'
+version = '%prog 20160420.1'
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', dest = "input", action='append')
 parser.add_argument("-r", dest = "rate", type = float, default = 0,
@@ -119,7 +119,7 @@ if len(args.input) == 2:
 					samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 				sba[sample].append(rec1.id.split('_')[1][5:])
 			else:
-                os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
+				os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
 				samples[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R1.fa','w')
 				samples[sample+'_1'].write('>'+rec1.id+'\n')
 				samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
@@ -148,7 +148,7 @@ if len(args.input) > 2:
 						samples[sample].write(str(seq_record.seq[6:])+'\n')
 					sba[sample].append(seq_record.id.split('_')[1][5:])
 				else:
-                    os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
+					os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
 					samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
 					samples[sample].write('>'+seq_record.id+'\n')
 					samples[sample].write(str(seq_record.seq[6:])+'\n')
@@ -164,9 +164,10 @@ sba_list = list(reduce(set.intersection,map(set,sba.values())))
 samples_sba = {}
 
 if len(args.input) == 1:
+	input_handle = smartopen(args.input[0],'rt')
 	for seq_record in SeqIO.parse(input_handle,"fastq"):
 		if seq_record.id.split('_')[1][5:] in sba_list:
-			sample = seq_record.id.split('_')[2]+'_'+str(i+1)
+			sample = seq_record.id.split('_')[2]
 			flag = seq_record.id.split('_')[5]
 			if sample in samples_sba:
 				if args.hap:
@@ -203,7 +204,7 @@ if len(args.input) == 2:
 					samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
 					samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 			else:
-                os.system('mkdir {}_r{}_sba/{}'.format(outputDir,str(rate),sample))
+				os.system('mkdir {}_r{}_sba/{}'.format(outputDir,str(rate),sample))
 				samples_sba[sample+'_1'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'/'+sample+'_R1.fa','w')
 				samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
 				samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
