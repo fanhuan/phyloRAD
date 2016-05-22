@@ -44,15 +44,17 @@ def is_exe(fpath):
 
 
 usage = "usage: %prog [args]"
-version = '%prog 20160420.1'
+version = '%prog 20160522.1'
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', dest = "input", action='append')
+parser.add_argument("-i", dest = "input", action='append')
 parser.add_argument("-r", dest = "rate", type = float, default = 0,
                   help = "dropout rate")
 parser.add_argument("-d", dest = "dir", default = "test",
                   help = "output directory for fasta files after seperation, default = test")
 parser.add_argument("-H", dest = "hap", action = 'store_true',
                   help = "keep only 1 tag/sample/locus, default = false")
+parser.add_argument("-L", dest = "nloci", default = 100,
+						help = "number of loci to sample, default = 100")
 args = parser.parse_args()
 
 rate = args.rate
@@ -77,23 +79,27 @@ sba = {} #{sample name: list of locus
 if len(args.input) == 1:
 	input_handle = smartopen(args.input[0])
 	for seq_record in SeqIO.parse(input_handle,"fastq"):
-		if rate < random.random():
-			sample = seq_record.id.split('_')[2]
-			flag = seq_record.id.split('_')[5]
-			if sample in samples:
-				if args.hap:
-					if flag == '0':
+		locus_id = int(seq_record.id.split('_')[1].lstrip('locus'))
+		if locus_id >= args.nloci:
+			break
+		else:
+			if rate < random.random():
+				sample = seq_record.id.split('_')[2]
+				flag = seq_record.id.split('_')[5]
+				if sample in samples:
+					if args.hap:
+						if flag == '0':
+							samples[sample].write('>'+seq_record.id+'\n')
+							samples[sample].write(str(seq_record.seq[6:])+'\n')
+					else:
 						samples[sample].write('>'+seq_record.id+'\n')
 						samples[sample].write(str(seq_record.seq[6:])+'\n')
+					sba[sample].append(seq_record.id.split('_')[1][5:])
 				else:
+					samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
 					samples[sample].write('>'+seq_record.id+'\n')
 					samples[sample].write(str(seq_record.seq[6:])+'\n')
-				sba[sample].append(seq_record.id.split('_')[1][5:])
-			else:
-				samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
-				samples[sample].write('>'+seq_record.id+'\n')
-				samples[sample].write(str(seq_record.seq[6:])+'\n')
-				sba[sample]=[seq_record.id.split('_')[1][5:]]
+					sba[sample]=[seq_record.id.split('_')[1][5:]]
 
 
 if len(args.input) == 2:
