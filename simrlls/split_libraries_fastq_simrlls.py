@@ -53,7 +53,7 @@ parser.add_argument("-d", dest = "dir", default = "test",
                   help = "output directory for fasta files after seperation, default = test")
 parser.add_argument("-H", dest = "hap", action = 'store_true',
                   help = "keep only 1 tag/sample/locus, default = false")
-parser.add_argument("-L", dest = "nloci", default = 100,
+parser.add_argument("-L", dest = "nloci", type =  int, default = 100,
 						help = "number of loci to sample, default = 100")
 args = parser.parse_args()
 
@@ -83,7 +83,7 @@ if len(args.input) == 1:
 		if locus_id >= args.nloci:
 			break
 		else:
-			if rate < random.random():
+			if rate =< random.random():
 				sample = seq_record.id.split('_')[2]
 				flag = seq_record.id.split('_')[5]
 				if sample in samples:
