@@ -97,8 +97,8 @@ if len(args.input) == 1:
 
 
 if len(args.input) == 2:
-	f1 = gzip.open(args.input[0],'rt')
-	f2 = gzip.open(args.input[1],'rt')
+	f1 = smartopen(args.input[0],'rt')
+	f2 = smartopen(args.input[1],'rt')
 	recs1 = SeqIO.parse(f1, 'fastq')
 	recs2 = SeqIO.parse(f2, 'fastq')
 	for rec1, rec2 in zip(recs1, recs2):
@@ -164,7 +164,7 @@ sba_list = list(reduce(set.intersection,map(set,sba.values())))
 samples_sba = {}
 
 if len(args.input) == 1:
-	input_handle = gzip.open(args.input[0],'rt')
+	input_handle = smartopen(args.input[0],'rt')
 	for seq_record in SeqIO.parse(input_handle,"fastq"):
 		if seq_record.id.split('_')[1][5:] in sba_list:
 			sample = seq_record.id.split('_')[2]
@@ -183,8 +183,8 @@ if len(args.input) == 1:
 				samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
 
 if len(args.input) == 2:
-	f1 = gzip.open(args.input[0],'rt')
-	f2 = gzip.open(args.input[1],'rt')
+	f1 = smartopen(args.input[0],'rt')
+	f2 = smartopen(args.input[1],'rt')
 	recs1 = SeqIO.parse(f1, 'fastq')
 	recs2 = SeqIO.parse(f2, 'fastq')
 	for rec1, rec2 in zip(recs1, recs2):
