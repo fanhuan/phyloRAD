@@ -44,7 +44,7 @@ def is_exe(fpath):
 
 
 usage = "usage: %prog [args]"
-version = '%prog 20160406.1'
+version = '%prog 20160420.1'
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', dest = "input", action='append')
 parser.add_argument("-r", dest = "rate", type = float, default = 0,
@@ -164,9 +164,10 @@ sba_list = list(reduce(set.intersection,map(set,sba.values())))
 samples_sba = {}
 
 if len(args.input) == 1:
+	input_handle = gzip.open(args.input[0],'rt')
 	for seq_record in SeqIO.parse(input_handle,"fastq"):
 		if seq_record.id.split('_')[1][5:] in sba_list:
-			sample = seq_record.id.split('_')[2]+'_'+str(i+1)
+			sample = seq_record.id.split('_')[2]
 			flag = seq_record.id.split('_')[5]
 			if sample in samples_sba:
 				if args.hap:
