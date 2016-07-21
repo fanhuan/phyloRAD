@@ -108,37 +108,37 @@ if len(args.input) == 2:
 	recs1 = SeqIO.parse(f1, 'fastq')
 	recs2 = SeqIO.parse(f2, 'fastq')
 	for rec1, rec2 in zip(recs1, recs2):
-        	locus_id = int(rec1.id.split('_')[1].lstrip('locus'))
-        	if locus_id >= args.nloci:
-            		break
-        	else:
-            		if rate <= random.random():
-                		sample = rec1.id.split('_')[2]
-                		flag = rec1.id.split('_')[5]
-                		if sample+'_1' in samples:
-                    			if args.hap:
-                        			if flag == '0':
-                            				samples[sample+'_1'].write('>'+rec1.id+'\n')
-                            				samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-                            				samples[sample+'_2'].write('>'+rec2.id+'\n')
-                            				samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
-					else:
-						samples[sample+'_1'].write('>'+rec1.id+'\n')
-						samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-						samples[sample+'_2'].write('>'+rec2.id+'\n')
-						samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
-					sba[sample].append(rec1.id.split('_')[1][5:])
-				else:
-					os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
-                    			samples[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R1.fa','w')
-                    			samples[sample+'_1'].write('>'+rec1.id+'\n')
-                    			samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-                    			samples[sample+'_2'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R2.fa','w')
-                    			samples[sample+'_2'].write('>'+rec2.id+'\n')
-                    			samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
-                    			sba[sample]=[rec1.id.split('_')[1][5:]]
-		f1.close()
-		f2.close()
+        locus_id = int(rec1.id.split('_')[1].lstrip('locus'))
+        if locus_id >= args.nloci:
+            break
+        else:
+            if rate <= random.random():
+                sample = rec1.id.split('_')[2]
+                flag = rec1.id.split('_')[5]
+                if sample+'_1' in samples:
+                    if args.hap:
+                        if flag == '0':
+                            samples[sample+'_1'].write('>'+rec1.id+'\n')
+                            samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+                            samples[sample+'_2'].write('>'+rec2.id+'\n')
+                            samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+                    else:
+                        samples[sample+'_1'].write('>'+rec1.id+'\n')
+                        samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+                        samples[sample+'_2'].write('>'+rec2.id+'\n')
+                        samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+                    sba[sample].append(rec1.id.split('_')[1][5:])
+                else:
+                    os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
+                    samples[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R1.fa','w')
+                    samples[sample+'_1'].write('>'+rec1.id+'\n')
+                    samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+                    samples[sample+'_2'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R2.fa','w')
+                    samples[sample+'_2'].write('>'+rec2.id+'\n')
+                    samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+                    sba[sample]=[rec1.id.split('_')[1][5:]]
+	f1.close()
+	f2.close()
 
 
 if len(args.input) > 2:
@@ -158,7 +158,7 @@ if len(args.input) > 2:
 						samples[sample].write(str(seq_record.seq[6:])+'\n')
 					sba[sample].append(seq_record.id.split('_')[1][5:])
 				else:
-                    			os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
+                    os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
 					samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
 					samples[sample].write('>'+seq_record.id+'\n')
 					samples[sample].write(str(seq_record.seq[6:])+'\n')
@@ -215,7 +215,7 @@ if len(args.input) == 2:
 					samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
 					samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 			else:
-                		os.system('mkdir {}_r{}_sba/{}'.format(outputDir,str(rate),sample))
+                os.system('mkdir {}_r{}_sba/{}'.format(outputDir,str(rate),sample))
 				samples_sba[sample+'_1'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'/'+sample+'_R1.fa','w')
 				samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
 				samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
