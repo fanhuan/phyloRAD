@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  split_libraries_fastq_FH.py
+#  split_libraries_fastq_simrrls.py
 #
 #  This script is written for spliting simrlls simulation data. This also includes 1) getting rid of barcode 2) introduce random dropout rate
 #  
@@ -170,6 +170,7 @@ if len(args.input) > 2:
 #for inputfile in args.input:
 #	input_handle = smartopen(inputfile)
 #	input_handle.seek(0) #back to the beginning of the file
+
 sba_list = list(reduce(set.intersection,map(set,sba.values())))
 samples_sba = {}
 
