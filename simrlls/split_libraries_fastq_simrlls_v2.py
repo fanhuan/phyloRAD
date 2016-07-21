@@ -44,7 +44,7 @@ def is_exe(fpath):
 
 
 usage = "usage: %prog [args]"
-version = '%prog 20160719.1'
+version = '%prog 20160721.1'
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", dest = "input", action='append')
 parser.add_argument("-r", dest = "rate", type = float, default = 0,
@@ -169,18 +169,18 @@ if len(args.input) == 2:
 		locus_id = int(rec1.id.split('_')[1].lstrip('locus'))
 		if locus_id in sba_selected[sample]:
 			if sample+'_1' in out_sample:
-				samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
-				samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-				samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
-				samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+				out_sample[sample+'_1'].write('>'+rec1.id+'\n')
+				out_sample[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+				out_sample[sample+'_2'].write('>'+rec2.id+'\n')
+				out_sample[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 			else:
 				os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
-				samples_sba[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R1.fa','w')
-				samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
-				samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-				samples_sba[sample+'_2'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R2.fa','w')
-				samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
-				samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+				out_sample[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R1.fa','w')
+				out_sample[sample+'_1'].write('>'+rec1.id+'\n')
+				out_sample[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+				out_sample[sample+'_2'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R2.fa','w')
+				out_sample[sample+'_2'].write('>'+rec2.id+'\n')
+				out_sample[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 	f1.close()
 	f2.close()
 
