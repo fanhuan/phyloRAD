@@ -129,7 +129,7 @@ if len(args.input) > 2:
 					sba[sample]=[seq_record.id.split('_')[1][5:]]
 	for key in samples:
 		samples[key].close()
-
+'''
 
 # Make the sba directory
 sba_selected = {}
@@ -137,7 +137,7 @@ for sample in sba:
 	loci_list = set(sba[sample])
 	loci_list = random.sample(loci_list,int(len(loci_list)*(1-rate)))
 	sba_selected[sample] = loci_list
-'''
+
 
 # Write fasta files
 out_sample = {}
