@@ -104,34 +104,7 @@ if len(args.input) == 2:
 	f1.close()
 	f2.close()
 
-'''
-if len(args.input) > 2:
-	for i, inputfile in enumerate(args.input):
-		input_handle = smartopen(inputfile)
-		for seq_record in SeqIO.parse(input_handle,"fastq"):
-			if rate < random.random():
-				sample = seq_record.id.split('_')[2]+'_'+str(i+1)
-				flag = seq_record.id.split('_')[5]
-				if sample in samples:
-					if args.hap:
-						if flag == '0':
-							samples[sample].write('>'+seq_record.id+'\n')
-							samples[sample].write(str(seq_record.seq[6:])+'\n')
-					else:
-						samples[sample].write('>'+seq_record.id+'\n')
-						samples[sample].write(str(seq_record.seq[6:])+'\n')
-					sba[sample].append(seq_record.id.split('_')[1][5:])
-				else:
-                    os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
-					samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
-					samples[sample].write('>'+seq_record.id+'\n')
-					samples[sample].write(str(seq_record.seq[6:])+'\n')
-					sba[sample]=[seq_record.id.split('_')[1][5:]]
-	for key in samples:
-		samples[key].close()
-'''
-
-# Make the sba directory
+# Add random dropout
 sba_selected = {}
 for sample in sba:
 	loci_list = set(sba[sample])
@@ -183,26 +156,5 @@ if len(args.input) == 2:
 	f1.close()
 	f2.close()
 
-'''
-if len(args.input) > 2:
-	for i, inputfile in enumerate(args.input):
-		input_handle = smartopen(inputfile)
-		for seq_record in SeqIO.parse(input_handle,"fastq"):
-			if seq_record.id.split('_')[1][5:] in sba_list:
-				sample = seq_record.id.split('_')[2]+'_'+str(i+1)
-				flag = seq_record.id.split('_')[5]
-				if sample in samples_sba:
-					if args.hap:
-						if flag == '0':
-							samples_sba[sample].write('>'+seq_record.id+'\n')
-							samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-					else:
-						samples_sba[sample].write('>'+seq_record.id+'\n')
-						samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-				else:
-					samples_sba[sample] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'.fa','w')
-					samples_sba[sample].write('>'+seq_record.id+'\n')
-					samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-'''
 for key in out_sample:
     out_sample[key].close()

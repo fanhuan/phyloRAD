@@ -2,3 +2,5 @@ The second version of split_libraries_fastq_simrlls.py
 1. Does not do the SBA bussiness anymore.
 2. Drop out on loci instead of reads
 3. Does not support haplotype
+
+The third version of split_libraries_fastq_simrlls.py keeps stats of what was there, what’s been selected and what’s been discarded.
