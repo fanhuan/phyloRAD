@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  split_libraries_fastq_simrrls.py
+#  split_libraries_fastq_FH.py
 #
 #  This script is written for spliting simrlls simulation data. This also includes 1) getting rid of barcode 2) introduce random dropout rate
 #  
@@ -51,8 +51,6 @@ parser.add_argument("-r", dest = "rate", type = float, default = 0,
                   help = "dropout rate")
 parser.add_argument("-d", dest = "dir", default = "test",
                   help = "output directory for fasta files after seperation, default = test")
-parser.add_argument("-H", dest = "hap", action = 'store_true',
-                  help = "keep only 1 tag/sample/locus, default = false")
 parser.add_argument("-L", dest = "nloci", type =  int, default = 100,
 						help = "number of loci to sample, default = 100")
 args = parser.parse_args()
@@ -65,16 +63,14 @@ if os.path.exists(outputDir+'_r'+str(rate)):
     print('The output directory {}_r{} already exist.'.format(outputDir,str(rate)))
     print('It is going to be over written.')
     os.system('rm -r {}_r{}'.format(outputDir,str(rate)))
-    os.system('rm -r {}_r{}_sba'.format(outputDir,str(rate)))
 
 os.system('mkdir {}_r{}'.format(outputDir,str(rate)))
-os.system('mkdir {}_r{}_sba'.format(outputDir,str(rate)))
 
 ### Start processing input file
 # Make the before selection directory
 from Bio import SeqIO
 samples = {} # {sample name: sample output file handle}
-sba = {} #{sample name: list of locus
+sba = {} #{sample name: list of locus}
 
 if len(args.input) == 1:
 	input_handle = smartopen(args.input[0])
@@ -83,24 +79,12 @@ if len(args.input) == 1:
 		if locus_id >= args.nloci:
 			break
 		else:
-			if rate <= random.random():
-				sample = seq_record.id.split('_')[2]
-				flag = seq_record.id.split('_')[5]
-				if sample in samples:
-					if args.hap:
-						if flag == '0':
-							samples[sample].write('>'+seq_record.id+'\n')
-							samples[sample].write(str(seq_record.seq[6:])+'\n')
-					else:
-						samples[sample].write('>'+seq_record.id+'\n')
-						samples[sample].write(str(seq_record.seq[6:])+'\n')
-					sba[sample].append(seq_record.id.split('_')[1][5:])
-				else:
-					samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
-					samples[sample].write('>'+seq_record.id+'\n')
-					samples[sample].write(str(seq_record.seq[6:])+'\n')
-					sba[sample]=[seq_record.id.split('_')[1][5:]]
-
+			sample = seq_record.id.split('_')[2]
+			if sample in sba:
+				sba[sample].append(locus_id)
+			else:
+				sba[sample]=[locus_id]
+	input_handle.close()
 
 if len(args.input) == 2:
 	f1 = smartopen(args.input[0],'rt')
@@ -108,64 +92,53 @@ if len(args.input) == 2:
 	recs1 = SeqIO.parse(f1, 'fastq')
 	recs2 = SeqIO.parse(f2, 'fastq')
 	for rec1, rec2 in zip(recs1, recs2):
-        locus_id = int(rec1.id.split('_')[1].lstrip('locus'))
-        if locus_id >= args.nloci:
-            break
-        else:
-            if rate <= random.random():
-                sample = rec1.id.split('_')[2]
-                flag = rec1.id.split('_')[5]
-                if sample+'_1' in samples:
-                    if args.hap:
-                        if flag == '0':
-                            samples[sample+'_1'].write('>'+rec1.id+'\n')
-                            samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-                            samples[sample+'_2'].write('>'+rec2.id+'\n')
-                            samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
-                    else:
-                        samples[sample+'_1'].write('>'+rec1.id+'\n')
-                        samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-                        samples[sample+'_2'].write('>'+rec2.id+'\n')
-                        samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
-                    sba[sample].append(rec1.id.split('_')[1][5:])
-                else:
-                    os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
-                    samples[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R1.fa','w')
-                    samples[sample+'_1'].write('>'+rec1.id+'\n')
-                    samples[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-                    samples[sample+'_2'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R2.fa','w')
-                    samples[sample+'_2'].write('>'+rec2.id+'\n')
-                    samples[sample+'_2'].write(str(rec2.seq[6:])+'\n')
-                    sba[sample]=[rec1.id.split('_')[1][5:]]
+		locus_id = int(rec1.id.split('_')[1].lstrip('locus'))
+		if locus_id >= args.nloci:
+			break
+		else:
+			sample = rec1.id.split('_')[2]
+			if sample in sba:
+				sba[sample].append(locus_id)
+			else:
+				sba[sample]=[locus_id]
 	f1.close()
 	f2.close()
 
-# Make the sba directory
-#for inputfile in args.input:
-#	input_handle = smartopen(inputfile)
-#	input_handle.seek(0) #back to the beginning of the file
+# Add random dropout
+sba_selected = {}
+total_list = []
+total_list_after_dropout = []
+for sample in sba:
+	loci_list = set(sba[sample])
+	total_list = total_list + loci_list
+	loci_list = random.sample(loci_list,int(len(loci_list)*(1-rate)))
+	total_list_after_dropout = total_list_after_dropout + loci_list
+	sba_selected[sample] = loci_list
 
-sba_list = list(reduce(set.intersection,map(set,sba.values())))
-samples_sba = {}
+#Stats after random dropout:
+hist = collections.Counter(total_list)
+hist_after_dropout = collections.Counter(total_list_after_dropout)
+#total = sorted(set(item for list in sba_selected.values() for item in list))
+#sba_list = sorted(reduce(set.intersection,map(set,sba_selected.values())))
 
+# Write fasta files
+out_sample = {}
 if len(args.input) == 1:
 	input_handle = smartopen(args.input[0],'rt')
 	for seq_record in SeqIO.parse(input_handle,"fastq"):
-		if seq_record.id.split('_')[1][5:] in sba_list:
-			sample = seq_record.id.split('_')[2]
-			flag = seq_record.id.split('_')[5]
-			if sample in samples_sba:
-				if args.hap:
-					if flag == '0':
-						samples_sba[sample].write('>'+seq_record.id+'\n')
-						samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+		sample = seq_record.id.split('_')[2]
+		locus_id = int(seq_record.id.split('_')[1].lstrip('locus'))
+		if locus_id >= args.nloci:
+			break
+		else:
+			if locus_id in sba_selected[sample]:
+				if sample in out_sample:
+						out_sample[sample].write('>'+seq_record.id+'\n')
+						out_sample[sample].write(str(seq_record.seq[6:])+'\n')
 				else:
-					samples_sba[sample].write('>'+seq_record.id+'\n')
-					samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-			else:
-				samples_sba[sample] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'.fa','w')
-				samples_sba[sample].write('>'+seq_record.id+'\n')
-				samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
+					out_sample[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
+					out_sample[sample].write('>'+seq_record.id+'\n')
+					out_sample[sample].write(str(seq_record.seq[6:])+'\n')
 
 if len(args.input) == 2:
 	f1 = smartopen(args.input[0],'rt')
@@ -173,51 +146,26 @@ if len(args.input) == 2:
 	recs1 = SeqIO.parse(f1, 'fastq')
 	recs2 = SeqIO.parse(f2, 'fastq')
 	for rec1, rec2 in zip(recs1, recs2):
-		if rec1.id.split('_')[1][5:] in sba_list:
-			sample = rec1.id.split('_')[2]
-			flag = rec1.id.split('_')[5]
-			if sample+'_1' in samples_sba:
-				if args.hap:
-					if flag == '0':
-						samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
-						samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-						samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
-						samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
-				else:
-					samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
-					samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-					samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
-					samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+		sample = rec1.id.split('_')[2]
+		locus_id = int(rec1.id.split('_')[1].lstrip('locus'))
+		if locus_id in sba_selected[sample]:
+			if sample+'_1' in out_sample:
+				out_sample[sample+'_1'].write('>'+rec1.id+'\n')
+				out_sample[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+				out_sample[sample+'_2'].write('>'+rec2.id+'\n')
+				out_sample[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 			else:
-                os.system('mkdir {}_r{}_sba/{}'.format(outputDir,str(rate),sample))
-				samples_sba[sample+'_1'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'/'+sample+'_R1.fa','w')
-				samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
-				samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
-				samples_sba[sample+'_2'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'/'+sample+'_R2.fa','w')
-				samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
-				samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
+				os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
+				out_sample[sample+'_1'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R1.fa','w')
+				out_sample[sample+'_1'].write('>'+rec1.id+'\n')
+				out_sample[sample+'_1'].write(str(rec1.seq[6:])+'\n')
+				out_sample[sample+'_2'] = open(outputDir+'_r'+str(rate)+'/'+sample+'/'+sample+'_R2.fa','w')
+				out_sample[sample+'_2'].write('>'+rec2.id+'\n')
+				out_sample[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 	f1.close()
 	f2.close()
 
-if len(args.input) > 2:
-	for i, inputfile in enumerate(args.input):
-		input_handle = smartopen(inputfile)
-		for seq_record in SeqIO.parse(input_handle,"fastq"):
-			if seq_record.id.split('_')[1][5:] in sba_list:
-				sample = seq_record.id.split('_')[2]+'_'+str(i+1)
-				flag = seq_record.id.split('_')[5]
-				if sample in samples_sba:
-					if args.hap:
-						if flag == '0':
-							samples_sba[sample].write('>'+seq_record.id+'\n')
-							samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-					else:
-						samples_sba[sample].write('>'+seq_record.id+'\n')
-						samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-				else:
-					samples_sba[sample] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'.fa','w')
-					samples_sba[sample].write('>'+seq_record.id+'\n')
-					samples_sba[sample].write(str(seq_record.seq[6:])+'\n')
-
-for key in samples_sba:
-    samples_sba[key].close()
+for key in out_sample:
+    out_sample[key].close()
+print(hist)
+print(hist_after_dropout)
