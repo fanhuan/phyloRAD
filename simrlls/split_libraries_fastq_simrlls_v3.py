@@ -109,7 +109,7 @@ sba_selected = {}
 total_list = []
 total_list_after_dropout = []
 for sample in sba:
-	loci_list = set(sba[sample])
+	loci_list = list(set(sba[sample]))
 	total_list = total_list + loci_list
 	loci_list = random.sample(loci_list,int(len(loci_list)*(1-rate)))
 	total_list_after_dropout = total_list_after_dropout + loci_list
