@@ -23,7 +23,7 @@
 #  MA 02110-1301, USA.
 #  
 
-import sys, gzip, bz2, os, time, math, re, argparse,random
+import sys, gzip, bz2, os, time, math, re, argparse,random, collections
 import multiprocessing as mp
 from optparse import OptionParser
 
