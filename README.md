@@ -1,20 +1,22 @@
 **AAF-RAD**
 ===========
 
-A program to simulate raw RADseq-like data with options to modify tree, population, sequencing, and formatting parameters. 
+A package reconstructs phylogeny from RADseq data using alignment and assembly-free (AAF) method.
+
+This package includes executables from Phylokmer (Author: Jue Ruan) and PHYLIP (Author: Joe Felsenstein) and ReadsSelector (Author: Chengxi Ye).
 
 Requirements
 ------------
++ UNIX system (Linux or macOS)
++ g++/gcc compilers
 + Python 2.7+
-+ Numpy Python module
-+ `Egglib Python module <http://mycor.nancy.inra.fr/egglib/>`_
+
 
 Installation:
 -------------
-1. Install the `Egglib Python module <http://egglib.sourceforge.net/>`_ v.2 (not v.3) `(I recommend these install instructions) <http://wjidea.github.io/2016/installEgglib.html>`_
-2. Download or clone *simrrls*.  
-3. 'cd' into the top-level `simrrls/` directory that contains the file setup.py
-4. run 'pip install .'  or 'python setup.py install'
+1. Download or clone this repo.  
+2. 'cd' into the top-level `source/` directory 
+3. run 'make all'  and 'make clean'
 
 Example usage: 
 ---------------
