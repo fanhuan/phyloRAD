@@ -60,6 +60,7 @@ args = parser.parse_args()
 rate = args.rate
 outputDir = args.dir
 
+
 ###Set up output folder:
 if os.path.exists(outputDir+'_r'+str(rate)):
     print('The output directory {}_r{} already exist.'.format(outputDir,str(rate)))
@@ -108,9 +109,9 @@ if len(args.input) == 2:
 	recs1 = SeqIO.parse(f1, 'fastq')
 	recs2 = SeqIO.parse(f2, 'fastq')
 	for rec1, rec2 in zip(recs1, recs2):
-        locus_id = int(rec1.id.split('_')[1].lstrip('locus'))
-        if locus_id >= args.nloci:
-            break
+		locus_id = int(rec1.id.split('_')[1].lstrip('locus'))
+		if locus_id >= args.nloci:
+			break
         else:
             if rate <= random.random():
                 sample = rec1.id.split('_')[2]
@@ -158,7 +159,7 @@ if len(args.input) > 2:
 						samples[sample].write(str(seq_record.seq[6:])+'\n')
 					sba[sample].append(seq_record.id.split('_')[1][5:])
 				else:
-                    os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
+					os.system('mkdir {}_r{}/{}'.format(outputDir,str(rate),sample))
 					samples[sample] = open(outputDir+'_r'+str(rate)+'/'+sample+'.fa','w')
 					samples[sample].write('>'+seq_record.id+'\n')
 					samples[sample].write(str(seq_record.seq[6:])+'\n')
@@ -215,7 +216,7 @@ if len(args.input) == 2:
 					samples_sba[sample+'_2'].write('>'+rec2.id+'\n')
 					samples_sba[sample+'_2'].write(str(rec2.seq[6:])+'\n')
 			else:
-                os.system('mkdir {}_r{}_sba/{}'.format(outputDir,str(rate),sample))
+				os.system('mkdir {}_r{}_sba/{}'.format(outputDir,str(rate),sample))
 				samples_sba[sample+'_1'] = open(outputDir+'_r'+str(rate)+'_sba/'+sample+'/'+sample+'_R1.fa','w')
 				samples_sba[sample+'_1'].write('>'+rec1.id+'\n')
 				samples_sba[sample+'_1'].write(str(rec1.seq[6:])+'\n')
