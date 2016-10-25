@@ -16,7 +16,8 @@ Installation:
 -------------
 1. Download or clone this repo.  
 2. 'cd' into the top-level `source/` directory 
-3. run 'make all'  and 'make clean'
+3. Run 'make all'  and 'make clean'
+4. 'cp' the executables you just compiled to your PATH or working directory, including consense, treedist, fitch_kmerX, fitch_kmerX_long, kmer_count(x), kmer_merge and ReadsSelector. 
 
 Example usage: 
 ---------------
