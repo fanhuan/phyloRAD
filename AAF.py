@@ -37,16 +37,16 @@ def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 def countShared(lines, sn): #count nshare only, for shared kmer table
-	shared = [[0] * sn for i in range(sn)]
-	for line in lines:
-		line = line.split()
+    shared = [[0] * sn for i in range(sn)]
+    for line in lines:
+        line = line.split()
         if len(line) == sn+1:
-	        line = line[1:]
-	    line = [int(i) for i in line]
-	    for i in range(sn):
-		    for j in range(i + 1, sn):
-		        if line[i]*line[j] != 0:
-			        shared[i][j] += 1
+            line = line[1:]
+        line = [int(i) for i in line]
+        for i in range(sn):
+            for j in range(i + 1, sn):
+                if line[i]*line[j] != 0:
+                    shared[i][j] += 1
     return shared
 
 def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
@@ -71,29 +71,29 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
         else:
             kmerCount = 'kmer_count'
 
-	###Get sample list:
-	samples = []
-	for fileName in os.listdir(dataDir):
-		if os.path.isdir(os.path.join(dataDir, fileName)):
-		    samples.append(fileName)
-		else:
-	        if not fileName.startswith('.'):
-		        sample = fileName.split(".")[0]
-			    if sample in samples:
-			        sample = fileName.split(".")[0]+fileName.split(".")[1]
-			        if sample in samples:
-				        print('Error, redundant sample or file names. Aborting!')
-					    sys.exit(3)
-				os.system("mkdir {}/{}".format(dataDir,sample))
-				os.system("mv {}/{} {}/{}/".format(dataDir,fileName,dataDir,sample))
-				samples.append(sample)
-	samples.sort()
-	sn = len(samples)
-	print time.strftime('%c')
-    print 'SPECIES LIST:'
+    ###Get sample list:
+    samples = []
+    for fileName in os.listdir(dataDir):
+        if os.path.isdir(os.path.join(dataDir, fileName)):
+            samples.append(fileName)
+        else:
+            if not fileName.startswith('.'):
+                sample = fileName.split(".")[0]
+                if sample in samples:
+                    sample = fileName.split(".")[0]+fileName.split(".")[1]
+                    if sample in samples:
+                        print('Error, redundant sample or file names. Aborting!')
+                        sys.exit(3)
+                os.system("mkdir {}/{}".format(dataDir,sample))
+                os.system("mv {}/{} {}/{}/".format(dataDir,fileName,dataDir,sample))
+                samples.append(sample)
+    samples.sort()
+    sn = len(samples)
+    print(time.strftime('%c'))
+    print('SPECIES LIST:')
     for sample in samples:
-	    print sample
-	###Prepare kmer_count jobs
+        print(sample)
+    ###Prepare kmer_count jobs
     jobList = []
     for sample in samples:
         outFile = '{}.pkdat.gz'.format(sample)
@@ -154,181 +154,169 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
             pool.apply_async(os.system(command))
         pool.close()
         pool.join()
-	return samples
+    return samples
 
-def countShared(lines, sn): #count nshare only, for shared kmer table
-	shared = [[0] * sn for i in range(sn)]
-	for line in lines:
-		line = line.split()
-        if len(line) == sn+1:
-	        line = line[1:]
-	    line = [int(i) for i in line]
-	    for i in range(sn):
-		    for j in range(i + 1, sn):
-		        if line[i]*line[j] != 0:
-			        shared[i][j] += 1
-    return shared
 
-def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False,)
+def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     #check executables
     if os.system('which fitch_kmerX > /dev/null'):
-	    if long:
-		    fitch = './fitch_kmerX_long'
-		else:
-			fitch = './fitch_kmerX'
-	    if not is_exe(fitch):
-		    print(fitch+' not found. Make sure it is in your PATH or the')
-			print('current directory, and that it is executable')
-			sys.exit()
+        if long:
+            fitch = './fitch_kmerX_long'
+        else:
+            fitch = './fitch_kmerX'
+        if not is_exe(fitch):
+            print(fitch+' not found. Make sure it is in your PATH or the')
+            print('current directory, and that it is executable')
+            sys.exit()
     else:
-	    if long:
-		    fitch = 'fitch_kmerX_long'
-		else:
-			fitch = 'fitch_kmerX'
-	#process the .dat.gz file
-	try:
-		iptf = smartopen(datfile,'rt')
-	except IOError:
-		print('Cannot open file', datafile)
-		sys.exit()
+        if long:
+            fitch = 'fitch_kmerX_long'
+        else:
+            fitch = 'fitch_kmerX'
+    #process the .dat.gz file
+    try:
+        iptf = smartopen(datfile,'rt')
+    except IOError:
+        print('Cannot open file', datafile)
+        sys.exit()
 
-	if not os.path.isfile(countfile):
-		print('Cannot find file', countfile)
-		sys.exit()
-		
-	try:
-		total = open(countfile,'rt')
-	except IOError:
-		print('Cannot open file', countfile)
-		sys.exit()
-		
-	try:
-		infile = open('infile','wt')
-	except IOError:
-		print('Cannot open infile for writing')
-		sys.exit()
+    if not os.path.isfile(countfile):
+        print('Cannot find file', countfile)
+        sys.exit()
+        
+    try:
+        total = open(countfile,'rt')
+    except IOError:
+        print('Cannot open file', countfile)
+        sys.exit()
+        
+    try:
+        infile = open('infile','wt')
+    except IOError:
+        print('Cannot open infile for writing')
+        sys.exit()
 
-	###Initialize shared kmers matrix
-	sn = len(samples)    #species number
-	nshare = [[0] * sn for i in range(sn)]
+    ###Initialize shared kmers matrix
+    sn = len(samples)    #species number
+    nshare = [[0] * sn for i in range(sn)]
 
-	###Compute the number of lines to process per thread
-	line = iptf.readline()
-	line_size = sys.getsizeof(line)
-	chunkLength = int(1024 ** 3 / nThreads / line_size)
-	print('chunkLength = {}'.format(chunkLength))
-	
-	###Compute shared kmer matrix
-	nJobs = 0
-	pool = mp.Pool(nThreads)
-	results = []
-	print('{} start running jobs'.format(time.strftime('%c')))
-	print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
-	while True:
-		if nJobs == nThreads:
-			pool.close()
-			pool.join()
-			for job in results:
-				shared = job.get()
-				for i in range(sn):
-					for j in range(i + 1, sn):
-						nshare[i][j] += shared[i][j]
-			pool = mp.Pool(nThreads)
-			nJobs = 0
-			results = []
-		    print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
-		
-		lines = []
-		for nLines in range(chunkLength):
-			if not line: #if empty
-				break
-			lines.append(line)
-			line = iptf.readline()
+    ###Compute the number of lines to process per thread
+    line = iptf.readline()
+    line_size = sys.getsizeof(line)
+    chunkLength = int(1024 ** 3 / nThreads / line_size)
+    print('chunkLength = {}'.format(chunkLength))
+    
+    ###Compute shared kmer matrix
+    nJobs = 0
+    pool = mp.Pool(nThreads)
+    results = []
+    print('{} start running jobs'.format(time.strftime('%c')))
+    print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
+    while True:
+        if nJobs == nThreads:
+            pool.close()
+            pool.join()
+            for job in results:
+                shared = job.get()
+                for i in range(sn):
+                    for j in range(i + 1, sn):
+                        nshare[i][j] += shared[i][j]
+            pool = mp.Pool(nThreads)
+            nJobs = 0
+            results = []
+            print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
+        
+        lines = []
+        for nLines in range(chunkLength):
+            if not line: #if empty
+                break
+            lines.append(line)
+            line = iptf.readline()
         if not lines: #if empty
-	        break
-		job = pool.apply_async(countShared, args=[lines, sn])
-		
-		results.append(job)
-		nJobs += 1
-	
-	if nJobs:
-		print('{} running last {} jobs'.format(time.strftime('%c'), len(results)))
-		pool.close()
-		pool.join()
-		for job in results:
-			shared = job.get()
-			for i in range(sn):
-				for j in range(i + 1, sn):
-					nshare[i][j] += shared[i][j]
+            break
+        job = pool.apply_async(countShared, args=[lines, sn])
+        
+        results.append(job)
+        nJobs += 1
+    
+    if nJobs:
+        print('{} running last {} jobs'.format(time.strftime('%c'), len(results)))
+        pool.close()
+        pool.join()
+        for job in results:
+            shared = job.get()
+            for i in range(sn):
+                for j in range(i + 1, sn):
+                    nshare[i][j] += shared[i][j]
 
     iptf.close()
-	
-	###Compute distance matrix
-	ntotal = [0.0] * sn
-	
-	for i in range(sn):
-		ntotal[i] = float(total.readline().split()[1])
-	dist = [[0] * sn for i in range(sn)]
+    
+    ###Compute distance matrix
+    ntotal = [0.0] * sn
+    
+    for i in range(sn):
+        ntotal[i] = float(total.readline().split()[1])
+    dist = [[0] * sn for i in range(sn)]
 
     for i in range(sn):
-	    for j in range(i + 1, sn):
-		    mintotal = min(ntotal[i], ntotal[j])
-			if nshare[i][j] == 0:
-				dist[j][i] = dist[i][j] = 1
-			else:
-				distance = (-1 / float(kl) * math.log(nshare[i][j] / mintotal)
-				dist[j][i] = dist[i][j] = distance
-				nshare[j][i] = nshare[i][j]
-								
-	total.close()
-								
-	###Write infile
-	infile.write('{} {}'.format(sn, sn))
-	namedic = {}
-	for i in range(sn):
-	    lsl = len(samples[i])
-	    if lsl >= 10:
-	        ssl = samples[i][:10]
-	        appendix = 1
-	        while ssl in namedic:
-	            if appendix < 10:
-	                ssl = samples[i][:9]+str(appendix)
-	            elif appendix > 9:
-	                ssl = samples[i][:8]+str(appendix)
-	            appendix += 1
-	    else:
-	        ssl = samples[i] + ' ' * (10 - lsl)
-	    namedic[ssl] = samples[i]
-	    infile.write('\n{}'.format(ssl))
-	    for j in range(sn):
-	        infile.write('\t{}'.format(dist[i][j]))
-	
-	infile.close()
-	
-	###Run fitch_kmer
-	print('{} building tree'.format(time.strftime("%c")))
-	if os.path.exists("./outfile"):
-	    os.system("rm -f outfile outtree")
-	command = 'printf "K\n{}\nY" | {} > /dev/null'.format(int(kl),fitch)
-	os.system(command)
-	fh = open('outtree','rt')
-	fh1 = open('aaf.tre','wt')
-	
-	for line in fh:
-	    for key in namedic:
-	        key_new = key.rstrip()+":"
-	        if key_new in line:
-	            newline = line.replace(key_new,namedic[key].rstrip()+":",1)
-	            line = newline
-	    fh1.write(line) #This can be either line or new line because when it exits
-	#the for loop, line==newline
-	fh.close()
-	fh1.close()
-	command = 'mv infile aaf.dist'
-	os.system(command)
-	
-	os.system('rm -f outfile outtree')
-	
-	print('{} end'.format(time.strftime("%c")))
-	
-	
+        for j in range(i + 1, sn):
+            mintotal = min(ntotal[i], ntotal[j])
+            if nshare[i][j] == 0:
+                dist[j][i] = dist[i][j] = 1
+            else:
+                distance = (-1 / float(kl) * math.log(nshare[i][j] / mintotal))
+                dist[j][i] = dist[i][j] = distance
+                nshare[j][i] = nshare[i][j]
+                                
+    total.close()
+                                
+    ###Write infile
+    infile.write('{} {}'.format(sn, sn))
+    namedic = {}
+    for i in range(sn):
+        lsl = len(samples[i])
+        if lsl >= 10:
+            ssl = samples[i][:10]
+            appendix = 1
+            while ssl in namedic:
+                if appendix < 10:
+                    ssl = samples[i][:9]+str(appendix)
+                elif appendix > 9:
+                    ssl = samples[i][:8]+str(appendix)
+                appendix += 1
+        else:
+            ssl = samples[i] + ' ' * (10 - lsl)
+        namedic[ssl] = samples[i]
+        infile.write('\n{}'.format(ssl))
+        for j in range(sn):
+            infile.write('\t{}'.format(dist[i][j]))
+    
+    infile.close()
+    
+    ###Run fitch_kmer
+    print('{} building tree'.format(time.strftime("%c")))
+    if os.path.exists("./outfile"):
+        os.system("rm -f outfile outtree")
+    command = 'printf "K\n{}\nY" | {} > /dev/null'.format(int(kl),fitch)
+    os.system(command)
+    fh = open('outtree','rt')
+    fh1 = open('aaf.tre','wt')
+    
+    for line in fh:
+        for key in namedic:
+            key_new = key.rstrip()+":"
+            if key_new in line:
+                newline = line.replace(key_new,namedic[key].rstrip()+":",1)
+                line = newline
+        fh1.write(line) #This can be either line or new line because when it exits
+    #the for loop, line==newline
+    fh.close()
+    fh1.close()
+    command = 'mv infile aaf.dist'
+    os.system(command)
+    
+    os.system('rm -f outfile outtree')
+    
+    print('{} end'.format(time.strftime("%c")))
+    
+    

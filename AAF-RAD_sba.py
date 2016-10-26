@@ -25,17 +25,7 @@
 import sys, gzip, bz2, os, time
 import multiprocessing as mp
 from optparse import OptionParser
-from AAF import 
-def smartopen(filename,*args,**kwargs):
-    if filename.endswith('gz'):
-        return gzip.open(filename,*args,**kwargs)
-    elif filename.endswith('bz2'):
-        return bz2.BZ2File(filename,*args,**kwargs)
-    else:
-        return open(filename,*args,**kwargs)
-
-def is_exe(fpath):
-    return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+from AAF import smartopen, is_exe, countShared, aaf_kmercount, aaf_dist
 
 
 
@@ -43,19 +33,19 @@ usage = "usage: %prog [options]"
 version = '%prog 20161025.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
-				  help = "k for reconstruction, default = 25")
+                  help = "k for reconstruction, default = 25")
 parser.add_option("--ks", dest = "ksLen", type = int, default = 25,
-				  help = "k for reads selection, default = 25")
+                  help = "k for reads selection, default = 25")
 parser.add_option("-n", dest = "filter", type = int, default = 1,
-				  help = "k-mer filtering threshold, default = 1")
+                  help = "k-mer filtering threshold, default = 1")
 parser.add_option("-d", dest = "dataDir", default = 'data',
-				  help = "directory containing the data, default = data/")
+                  help = "directory containing the data, default = data/")
 parser.add_option("-G", dest = "memSize", type = int, default = 4,
-				  help = "total memory limit (in GB), default = 4")
+                  help = "total memory limit (in GB), default = 4")
 parser.add_option("-t", dest = "nThreads", type = int, default = 1,
-				  help = "number of threads to use, default = 1")
+                  help = "number of threads to use, default = 1")
 parser.add_option("-l", dest = "long", action = 'store_true',
-				  help = "use fitch_kmerX_long instead of fitch_kmerX")
+                  help = "use fitch_kmerX_long instead of fitch_kmerX")
 
 (options, args) = parser.parse_args()
 
@@ -67,13 +57,13 @@ ks = options.ksLen
 dataDir = options.dataDir
 
 if not memPerThread:
-    print 'Not enough memory, decrease nThreads or increase memSize'
+    print('Not enough memory, decrease nThreads or increase memSize')
     sys.exit()
     
 
 ###check the data directory:
 if not os.path.isdir(dataDir):
-    print 'Cannot find data directory {}'.format(dataDir)
+    print('Cannot find data directory {}'.format(dataDir))
     sys.exit(2)
 
 
@@ -82,21 +72,21 @@ if not os.path.isdir(dataDir):
 if os.system('which kmer_merge > /dev/null'):
     filt = './kmer_merge'
     if not is_exe(filt):
-        print 'kmer_merge not found. Make sure it is in your PATH or the'
-        print 'current directory, and that it is executable'
+        print('kmer_merge not found. Make sure it is in your PATH or the')
+        print('current directory, and that it is executable')
         sys.exit(1)
 else:
     filt = 'kmer_merge'
 
 #ReadsSelector
 if os.system('which ReadsSelector > /dev/null'):
-	ReadsSelector = './ReadsSelector'
-	if not is_exe(filt):
+    ReadsSelector = './ReadsSelector'
+    if not is_exe(filt):
         print('ReadsSelector not found. Make sure it is in your PATH or the')
-	    print('current directory, and that it is executable')
-	    sys.exit(1)
+        print('current directory, and that it is executable')
+        sys.exit(1)
 else:
-	ReadsSelector = 'ReadsSelector'
+    ReadsSelector = 'ReadsSelector'
 
 
 ###Run aaf_kmercount to get pkdat for each species
@@ -117,38 +107,37 @@ sba_sh.close()
 ###Run kmer_merge.sh
 command = 'sh kmer_merge.sh'
 os.system(command)
-print time.strftime('%c')
+print(time.strftime('%c'))
 
 ####set up directory for selected reads
 selection_dir = '{}_ks{}_sba'.format(os.path.basename(dataDir.rstrip('/')),ks)
 
 if os.path.exists('./'+selection_dir):
-	command = 'rm -r {}'.format(selection_dir)
-	os.system(command)
+    command = 'rm -r {}'.format(selection_dir)
+    os.system(command)
 command = 'mkdir {}'.format(selection_dir)
 os.system(command)
 
 #Run ReadsSelector
 for sample in samples:
-	infiles = os.listdir(os.path.join(dataDir,sample):
-	command = '{} -k sba.kmer -fa 1 -o {}/{}_selected ' \
-				 .format(ReadsSelector,selection_dir,sample)
-	for input in infiles:
-		command += '-s {}'.format(infiles)
-	os.system(command)
-	
+    infiles = os.listdir(os.path.join(dataDir,sample))
+    command = '{} -k sba.kmer -fa 1 -o {}/{}_selected '.format(ReadsSelector,selection_dir,sample)
+    for input in infiles:
+        command += '-s {}'.format(infiles)
+    os.system(command)
+    
 #After selection
 aaf_kmercount(selection_dir,kl,n,options.nThreads,memSize/options.nThreads)
 
- ###Merge output wc files
- divFile = selection_dir+'.wc'
- handle = open(divFile, 'w')
- handle.close()
- for sample in samples:
-     countfile = sample + '.wc'
-     os.system('cat {} >> {}'.format(countfile, divFile))
-     os.remove(countfile)
- 
+###Merge output wc files
+divFile = selection_dir+'.wc'
+handle = open(divFile, 'w')
+handle.close()
+for sample in samples:
+    countfile = sample + '.wc'
+    os.system('cat {} >> {}'.format(countfile, divFile))
+    os.remove(countfile)
+
  ###Run kmer_merge
 outFile = selection_dir+'.dat.gz'
 handle = smartopen(outFile, 'w')
@@ -165,12 +154,12 @@ for i, sample in enumerate(samples):
     cut.append(str((i + 1) * 2))
 
 command += ' | cut -f {} | gzip >> {}'.format(','.join(cut), outFile)
-print '\n', time.strftime('%c')
-print command
+print('\n', time.strftime('%c'))
+print(command)
 os.system(command)
-print time.strftime('%c')
+print(time.strftime('%c'))
 
 #Calculate the distance and generate the tree!
-aaf_dist(outFile,countfile,nThreads,samples,kl,)
+aaf_dist(outFile,countfile,nThreads,samples,kl)
 command = 'mv aaf.tre {}.tre'.format(selection_dir)
 command = 'mv aaf.dist {}.dist'.format(selection_dir)
