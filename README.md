@@ -27,8 +27,7 @@ Example usage:
 ---------------
 
 Using shared-by-all reads selection::
-
-.. code:: bash  
+ 
 
     $ AAF-RAD_sba.py -h
     
@@ -46,7 +45,7 @@ Using shared-by-all reads selection::
 	  -l           use fitch_kmerX_long instead of fitch_kmerX
 
 
-Using shared-by-all reads selection::
+Using pairwise reads selection::
 
     $ AAF-RAD_pairwise.py -h
 	Usage: AAF-RAD_pairwise.py [options]
@@ -61,8 +60,7 @@ Using shared-by-all reads selection::
 	  -G MEMSIZE   total memory limit (in GB), default = 4
 	  -t NTHREADS  number of threads to use, default = 1
 	  -l           use fitch_kmerX_long instead of fitch_kmerX
-
-.. code:: bash  
+ 
 
 Examples:
 
@@ -74,8 +72,3 @@ The command used in generating Figure 5c in the AAF-RAD paper:
 The command used in generating Figure 5d in the AAF-RAD paper:  
 
 	$ AAF-RAD_pairwise.py -d Quercus_CAVENDER-BARES -G 20 -t 5 -k 21 --ks 21 -n 2
-
-
-
-
-0
