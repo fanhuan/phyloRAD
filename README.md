@@ -3,7 +3,7 @@
 
 A package reconstructs phylogeny from RADseq data using alignment and assembly-free (AAF) method.
 
-This package includes executables from Phylokmer (Author: Jue Ruan) and PHYLIP (Author: Joe Felsenstein) and ReadsSelector (Author: Chengxi Ye).
+This package includes executables from Phylokmer (Author: Jue Ruan), PHYLIP (Author: Joe Felsenstein) and ReadsSelector (Author: Chengxi Ye).
 
 Requirements
 ------------
