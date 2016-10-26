@@ -25,7 +25,7 @@
 import sys, gzip, bz2, os, time, subprocess, math
 import multiprocessing as mp
 from optparse import OptionParser
-from AAF import smartopen, is_exe, aaf_phylokmer
+from AAF import *
 
 
 usage = "usage: %prog [options]"
@@ -57,8 +57,8 @@ memPerThread = int(options.memSize / float(nThreads))
 dataDir = options.dataDir
 
 if not memPerThread:
-	print 'Not enough memory, decrease nThreads or increase memSize'
-		sys.exit()
+	print('Not enough memory, decrease nThreads or increase memSize')
+	sys.exit()
 
 ###check the data directory:
 if not os.path.isdir(dataDir):
