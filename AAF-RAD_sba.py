@@ -25,7 +25,7 @@
 import sys, gzip, bz2, os, time
 import multiprocessing as mp
 from optparse import OptionParser
-
+from AAF import 
 def smartopen(filename,*args,**kwargs):
     if filename.endswith('gz'):
         return gzip.open(filename,*args,**kwargs)
@@ -98,50 +98,10 @@ if os.system('which ReadsSelector > /dev/null'):
 else:
 	ReadsSelector = 'ReadsSelector'
 
-#fitch
-if os.system('which fitch_kmerX > /dev/null'):
-	if options.long:
-	    fitch = './fitch_kmerX_long'
-	else:
-        fitch = './fitch_kmerX'
-	if not is_exe(fitch):
-	    print(fitch+' not found. Make sure it is in your PATH or the')
-	    print('current directory, and that it is executable')
-	    sys.exit()
-else:
-	if options.long:
-	    fitch = 'fitch_kmerX_long'
-	else:
-        fitch = 'fitch_kmerX'
-
-###Get sample list:
-samples = []
-for fileName in os.listdir(dataDir):
-    if os.path.isdir(os.path.join(dataDir, fileName)):
-        samples.append(fileName)
-    else:
-        if not fileName.startswith('.'):
-            sample = fileName.split(".")[0]
-            if sample in samples:
-                sample = fileName.split(".")[0]+fileName.split(".")[1]
-                if sample in samples:
-                    print 'Error, redundant sample or file names. Aborting!'
-                    sys.exit(3)
-            os.system("mkdir {}/{}".format(dataDir,sample))
-            os.system("mv {}/{} {}/{}/".format(dataDir,fileName,dataDir,sample))
-            samples.append(sample)
-samples.sort()
-sn = len(samples)
-
-print time.strftime('%c')
-print 'SPECIES LIST:'
-for sample in samples:
-    print sample
-
 
 ###Run aaf_kmercount to get pkdat for each species
 
-aaf_kmercount(dataDir,samples,ks,n,options.nThreads,memSize/options.nThreads)
+samples = aaf_kmercount(dataDir,ks,n,options.nThreads,memSize/options.nThreads)
 
 ###Run kmer_merge
 command_sba = "{} -k s -c -d '0' -a A".format(filt)
@@ -178,4 +138,39 @@ for sample in samples:
 	os.system(command)
 	
 #After selection
-aaf_kmercount(selection_dir,samples,ks,n,options.nThreads,memSize/options.nThreads)
+aaf_kmercount(selection_dir,kl,n,options.nThreads,memSize/options.nThreads)
+
+ ###Merge output wc files
+ divFile = selection_dir+'.wc'
+ handle = open(divFile, 'w')
+ handle.close()
+ for sample in samples:
+     countfile = sample + '.wc'
+     os.system('cat {} >> {}'.format(countfile, divFile))
+     os.remove(countfile)
+ 
+ ###Run kmer_merge
+outFile = selection_dir+'.dat.gz'
+handle = smartopen(outFile, 'w')
+print >> handle, '#-k {}'.format(kl)
+print >> handle, '#-n {}'.format(n)
+for i, sample in enumerate(samples):
+    print >> handle, '#sample{}: {}'.format(i + 1, sample)
+handle.close()
+
+command = "{} -k s -c -d '0' -a 'T,M,F'".format(filt)
+cut = []
+for i, sample in enumerate(samples):
+    command += " '{}.pkdat.gz'".format(sample)
+    cut.append(str((i + 1) * 2))
+
+command += ' | cut -f {} | gzip >> {}'.format(','.join(cut), outFile)
+print '\n', time.strftime('%c')
+print command
+os.system(command)
+print time.strftime('%c')
+
+#Calculate the distance and generate the tree!
+aaf_dist(outFile,countfile,nThreads,samples,kl,)
+command = 'mv aaf.tre {}.tre'.format(selection_dir)
+command = 'mv aaf.dist {}.dist'.format(selection_dir)

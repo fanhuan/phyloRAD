@@ -54,14 +54,15 @@ nThreads = options.nThreads
 kl = options.kLen
 ks = options.ksLen
 memPerThread = int(options.memSize / float(nThreads))
+dataDir = options.dataDir
 
 if not memPerThread:
 	print 'Not enough memory, decrease nThreads or increase memSize'
 		sys.exit()
 
 ###check the data directory:
-if not os.path.isdir(options.dataDir):
-    print('Cannot find data directory {}'.format(options.dataDir))
+if not os.path.isdir(dataDir):
+    print('Cannot find data directory {}'.format(dataDir))
     sys.exit(2)
 
 
@@ -102,26 +103,9 @@ else:
     else:
         fitch = 'fitch_kmerX'
 
-###Get sample list:
-samples = []
-for fileName in os.listdir(options.dataDir):
-    if os.path.isdir(os.path.join(options.dataDir, fileName)):
-        samples.append(fileName)
-    else:
-        if not fileName.startswith('.'):
-            sample = fileName.split(".")[0]
-            if sample in samples:
-                sample = fileName.split(".")[0]+fileName.split(".")[1]
-                if sample in samples:
-                    print('Error, redundant sample or file names. Aborting!')
-                    sys.exit(3)
-            os.system("mkdir {}/{}".format(options.dataDir,sample))
-            os.system("mv {}/{} {}/{}/".format(options.dataDir,fileName,options.dataDir,sample))
-            samples.append(sample)
-samples.sort()
-sn = len(samples)
+
 #set up directory for selected reads
-selection_dir = '{}_ks{}_pairwise'.format(os.path.basename(options.dataDir.rstrip('/')),ks)
+selection_dir = '{}_ks{}_pairwise'.format(os.path.basename(dataDir.rstrip('/')),ks)
 
 if os.path.exists('./'+selection_dir):
 	command = 'rm -r {}'.format(selection_dir)
@@ -132,7 +116,7 @@ os.system(command)
 
 ###Run aaf_kmercount to get pkdat for each species
 
-aaf_kmercount(options.dataDir,samples,ks,n,nThreads,memPerThread)
+samples = aaf_kmercount(dataDir,ks,n,nThreads,memPerThread)
 
 ###Build distance matrix
 dist = [[0] * sn for i in range(sn)]
@@ -146,10 +130,10 @@ for i in range(sn):
         command.append('{} -k s -c -d 0 -A A -B A {}.pkdat.gz {}.pkdat.gz | cut -f 1 > test.kmer'.format(filt,samples[i],samples[j]))
         command.append('{} -k test.kmer -fa 1 -o {}/{}_{}/{} -s {}/{}/*' \
                   .format(ReadsSelector,selection_dir,samples[i],samples[j],
-                          samples[i],options.dataDir,samples[i]))
+                          samples[i],dataDir,samples[i]))
         command.append('{} -k test.kmer -fa 1 -o {}/{}_{}/{} -s {}/{}/*' \
             .format(ReadsSelector,selection_dir,samples[i],samples[j],
-                    samples[j],options.dataDir,samples[j]))
+                    samples[j],dataDir,samples[j]))
         for comm in command:
             print(comm)
             os.system(comm)
