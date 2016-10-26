@@ -23,7 +23,7 @@ Installation:
 	+ Add where AAF.py is to your PATH `export PATH=/PATH/TO/AAF.py:$PATH`
 	+ Put AAF.py in your site-packages folder. If you don't know where your site-packages folder is, try: `>>> import site; site.getsitepackages()`
 
-Example usage: 
+Usage and Examples: 
 ---------------
 
 Using shared-by-all reads selection::
