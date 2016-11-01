@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  AAF-RAD_pairwise.py
+#  phyloRAD_pairwise.py
 #  
 #  Copyright 2016 Huan Fan <hfan22@wisc.edu>
 #

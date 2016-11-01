@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  aaf_phylokmer.py
+#  phyloRAD_sba.py
 #  
-#  Copyright 2015,2016 Huan Fan
-#  <hfan22@wisc.edu> & Yann Surget-Groba <yann@xtbg.org.cn>
+#  Copyright 2016 Huan Fan <hfan22@wisc.edu>
+#
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ from AAF import smartopen, is_exe, countShared, aaf_kmercount, aaf_dist
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20161025.1'
+version = '%prog 20161030.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k for reconstruction, default = 25")

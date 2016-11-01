@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  aaf_pairwise.py
+#  AAF.py
 #  
 #  Copyright 2016 Huan Fan <hfan22@wisc.edu>
 #

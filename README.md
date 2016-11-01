@@ -1,4 +1,4 @@
-**AAF-RAD**
+**phyloRAD**
 ===========
 
 A package reconstructs phylogeny from RADseq data using alignment and assembly-free (AAF) method.
@@ -29,9 +29,9 @@ Usage and Examples:
 Using shared-by-all reads selection::
  
 
-    $ AAF-RAD_sba.py -h
+    $ phyloRAD_sba.py -h
     
-    Usage: AAF-RAD_sba.py [options]
+    Usage: phyloRAD_sba.py [options]
 
 	Options:
 	  --version    show program's version number and exit
@@ -47,8 +47,8 @@ Using shared-by-all reads selection::
 
 Using pairwise reads selection::
 
-    $ AAF-RAD_pairwise.py -h
-	Usage: AAF-RAD_pairwise.py [options]
+    $ phyloRAD_pairwise.py -h
+	Usage: phyloRAD_pairwise.py [options]
 	
 	Options:
 	  --version    show program's version number and exit
@@ -64,11 +64,11 @@ Using pairwise reads selection::
 
 Examples:
 
-The command used in generating Figure 5c in the AAF-RAD paper:
+The command used in generating Figure 5c in the phyloRAD paper:
 
 
-    $ AAF-RAD_sba.py -d Quercus_CAVENDER-BARES -G 20 -t 5 -k 21 --ks 21 -n 2
+    $ phyloRAD_sba.py -d Quercus_CAVENDER-BARES -G 20 -t 5 -k 21 --ks 21 -n 2
     
-The command used in generating Figure 5d in the AAF-RAD paper:  
+The command used in generating Figure 5d in the phyloRAD paper:  
 
-	$ AAF-RAD_pairwise.py -d Quercus_CAVENDER-BARES -G 20 -t 5 -k 21 --ks 21 -n 2
+	$ phyloRAD_pairwise.py -d Quercus_CAVENDER-BARES -G 20 -t 5 -k 21 --ks 21 -n 2
