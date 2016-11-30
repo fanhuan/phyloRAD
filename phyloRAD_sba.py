@@ -111,7 +111,7 @@ os.system(command)
 print(time.strftime('%c'))
 
 ####set up directory for selected reads
-selection_dir = '{}_ks{}_sba'.format(os.path.basename(dataDir.rstrip('/')),ks)
+selection_dir = '{}_ks{}_n{}_sba'.format(os.path.basename(dataDir.rstrip('/')),ks,n)
 
 if os.path.exists('./'+selection_dir):
     command = 'rm -r {}'.format(selection_dir)
