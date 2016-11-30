@@ -2,25 +2,25 @@
 # -*- coding: utf-8 -*-
 #
 #  phyloRAD_sba.py
-#  
+#
 #  Copyright 2016 Huan Fan <hfan22@wisc.edu>
 #
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 
 import sys, gzip, bz2, os, time
 import multiprocessing as mp
@@ -55,11 +55,12 @@ memPerThread = int(options.memSize / float(nThreads))
 kl = options.kLen
 ks = options.ksLen
 dataDir = options.dataDir
+memSize = options.memSize
 
 if not memPerThread:
     print('Not enough memory, decrease nThreads or increase memSize')
     sys.exit()
-    
+
 
 ###check the data directory:
 if not os.path.isdir(dataDir):
@@ -121,18 +122,20 @@ os.system(command)
 #Run ReadsSelector
 for sample in samples:
     infiles = os.listdir(os.path.join(dataDir,sample))
-    command = '{} -k sba.kmer -fa 1 -o {}/{}_selected '.format(ReadsSelector,selection_dir,sample)
-    for input in infiles:
-        command += '-s {}'.format(infiles)
+    command = '{} -k sba.kmer -fa 1 -o {}/{}_selected.fa '.format(ReadsSelector,selection_dir,sample)
+    for infile in infiles:
+        command += '-s {}'.format(os.path.join(dataDir,sample,infile))
+    print(command)
     os.system(command)
-    
+
 #After selection
-aaf_kmercount(selection_dir,kl,n,options.nThreads,memSize/options.nThreads)
+samples = aaf_kmercount(selection_dir,kl,n,options.nThreads,memSize/options.nThreads)
 
 ###Merge output wc files
 divFile = selection_dir+'.wc'
 handle = open(divFile, 'w')
 handle.close()
+
 for sample in samples:
     countfile = sample + '.wc'
     os.system('cat {} >> {}'.format(countfile, divFile))
@@ -141,10 +144,10 @@ for sample in samples:
  ###Run kmer_merge
 outFile = selection_dir+'.dat.gz'
 handle = smartopen(outFile, 'w')
-print >> handle, '#-k {}'.format(kl)
-print >> handle, '#-n {}'.format(n)
+handle.write(('#-k {}\n'.format(kl)).encode())
+handle.write(('#-n {}\n'.format(n)).encode())
 for i, sample in enumerate(samples):
-    print >> handle, '#sample{}: {}'.format(i + 1, sample)
+    handle.write(('#sample{}: {}\n'.format(i + 1, sample)).encode())
 handle.close()
 
 command = "{} -k s -c -d '0' -a 'T,M,F'".format(filt)
@@ -160,6 +163,6 @@ os.system(command)
 print(time.strftime('%c'))
 
 #Calculate the distance and generate the tree!
-aaf_dist(outFile,countfile,nThreads,samples,kl)
+aaf_dist(outFile,divFile,nThreads,samples,kl)
 command = 'mv aaf.tre {}.tre'.format(selection_dir)
 command = 'mv aaf.dist {}.dist'.format(selection_dir)

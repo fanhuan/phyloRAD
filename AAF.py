@@ -2,27 +2,27 @@
 # -*- coding: utf-8 -*-
 #
 #  AAF.py
-#  
+#
 #  Copyright 2016 Huan Fan <hfan22@wisc.edu>
 #
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 
-import sys, gzip, bz2, os, time
+import sys, gzip, bz2, os, time, math
 import multiprocessing as mp
 
 def smartopen(filename,*args,**kwargs):
@@ -111,10 +111,10 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
                 print('Error, file {} is not FA or FQ format. Aborting!'.format(inputFile))
                 sys.exit(3)
             command1 += " -i '{}'".format(inputFile)
-            command += '{}{}> {}.wc'.format(seqFormat,command1,sample)
-            jobList.append(command)
-    jobList = jobList[::-1]
+        command += '{}{}> {}.wc'.format(seqFormat,command1,sample)
+        jobList.append(command)
 
+    jobList = jobList[::-1] #reverse the order
     ###Run jobs
     pool = mp.Pool(nThreads)
     jobs = []
@@ -131,8 +131,8 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
             print(time.strftime('%c'))
             print("running batch {}/{}".format(batch, nBatches))
             for job in jobs:
-                print(command)
-                pool.apply_async(os.system(command))
+                print(job)
+                pool.apply_async(os.system(job))
             pool.close()
             pool.join()
             pool = mp.Pool(nThreads)
@@ -151,7 +151,8 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
         print(time.strftime('%c'))
         print("running last batch")
         for job in jobs:
-            pool.apply_async(os.system(command))
+            print(job)
+            pool.apply_async(os.system(job))
         pool.close()
         pool.join()
     return samples
@@ -183,19 +184,38 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     if not os.path.isfile(countfile):
         print('Cannot find file', countfile)
         sys.exit()
-        
+
     try:
         total = open(countfile,'rt')
     except IOError:
         print('Cannot open file', countfile)
         sys.exit()
-        
+
     try:
         infile = open('infile','wt')
     except IOError:
         print('Cannot open infile for writing')
         sys.exit()
 
+    ###Read header
+    sl = []                 #species list
+    line = iptf.readline()
+    ll = line.split()
+    if kl != float(ll[1]):
+        print("The recorded k in the shared kmer table file is not the same with the k supplied to aaf_dist; exiting now.")       #kmer length
+        sys.exit()
+    while True:
+        line = iptf.readline()
+        if line.startswith('#-'):
+            continue
+        elif line.startswith('#sample'):
+            ll = line.split()
+            sl.append(ll[1])
+        else:
+            break
+    if sl != samples:
+        print("The recorded sample list in the shared kmer table file is not the same with the one supplied to aaf_dist; exiting now.")       #kmer length
+        sys.exit()
     ###Initialize shared kmers matrix
     sn = len(samples)    #species number
     nshare = [[0] * sn for i in range(sn)]
@@ -205,7 +225,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     line_size = sys.getsizeof(line)
     chunkLength = int(1024 ** 3 / nThreads / line_size)
     print('chunkLength = {}'.format(chunkLength))
-    
+
     ###Compute shared kmer matrix
     nJobs = 0
     pool = mp.Pool(nThreads)
@@ -225,7 +245,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
             nJobs = 0
             results = []
             print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
-        
+
         lines = []
         for nLines in range(chunkLength):
             if not line: #if empty
@@ -235,10 +255,10 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
         if not lines: #if empty
             break
         job = pool.apply_async(countShared, args=[lines, sn])
-        
+
         results.append(job)
         nJobs += 1
-    
+
     if nJobs:
         print('{} running last {} jobs'.format(time.strftime('%c'), len(results)))
         pool.close()
@@ -250,10 +270,10 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
                     nshare[i][j] += shared[i][j]
 
     iptf.close()
-    
+
     ###Compute distance matrix
     ntotal = [0.0] * sn
-    
+
     for i in range(sn):
         ntotal[i] = float(total.readline().split()[1])
     dist = [[0] * sn for i in range(sn)]
@@ -265,11 +285,12 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
                 dist[j][i] = dist[i][j] = 1
             else:
                 distance = (-1 / float(kl) * math.log(nshare[i][j] / mintotal))
+                print(mintotal,nshare[i][j])
                 dist[j][i] = dist[i][j] = distance
                 nshare[j][i] = nshare[i][j]
-                                
+
     total.close()
-                                
+
     ###Write infile
     infile.write('{} {}'.format(sn, sn))
     namedic = {}
@@ -290,9 +311,9 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
         infile.write('\n{}'.format(ssl))
         for j in range(sn):
             infile.write('\t{}'.format(dist[i][j]))
-    
+
     infile.close()
-    
+
     ###Run fitch_kmer
     print('{} building tree'.format(time.strftime("%c")))
     if os.path.exists("./outfile"):
@@ -301,7 +322,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     os.system(command)
     fh = open('outtree','rt')
     fh1 = open('aaf.tre','wt')
-    
+
     for line in fh:
         for key in namedic:
             key_new = key.rstrip()+":"
@@ -314,9 +335,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     fh1.close()
     command = 'mv infile aaf.dist'
     os.system(command)
-    
+
     os.system('rm -f outfile outtree')
-    
+
     print('{} end'.format(time.strftime("%c")))
-    
-    
