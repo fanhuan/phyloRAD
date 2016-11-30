@@ -25,6 +25,8 @@
 import sys, gzip, bz2, os, time, math
 import multiprocessing as mp
 
+version = '%prog 20161130.1'
+
 def smartopen(filename,*args,**kwargs):
     if filename.endswith('gz'):
         return gzip.open(filename,*args,**kwargs)
@@ -321,7 +323,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     command = 'printf "K\n{}\nY" | {} > /dev/null'.format(int(kl),fitch)
     os.system(command)
     fh = open('outtree','rt')
-    fh1 = open('aaf.tre','wt')
+    fh1 = open(datfile.split('.')[0]+'.tre','wt')
 
     for line in fh:
         for key in namedic:
@@ -333,7 +335,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     #the for loop, line==newline
     fh.close()
     fh1.close()
-    command = 'mv infile aaf.dist'
+    command = 'mv infile {}.dist'.format(datfile.split('.')[0])
     os.system(command)
 
     os.system('rm -f outfile outtree')
