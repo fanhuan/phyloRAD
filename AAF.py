@@ -22,21 +22,48 @@
 #  MA 02110-1301, USA.
 #
 
-import sys, gzip, bz2, os, time, math
+import sys, os, time, math
 import multiprocessing as mp
+import numpy as np
 
-version = '%prog 20161130.1'
+version = '%prog 20170209.1'
 
-def smartopen(filename,*args,**kwargs):
+'''
+function included:
+smartopen
+is_exe
+present
+countTotal
+countShared
+countTotal_shared
+aaf_kmercount
+aaf_dist
+
+'''
+def smartopen(filename, mode = 'rt'):
+    import gzip, bz2
     if filename.endswith('gz'):
-        return gzip.open(filename,*args,**kwargs)
+        return gzip.open(filename, mode)
     elif filename.endswith('bz2'):
-        return bz2.BZ2File(filename,*args,**kwargs)
+        return bz2.BZ2File(filename, mode)
     else:
         return open(filename,*args,**kwargs)
 
 def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+def present(x,n=1):
+    if int(x) >= n:
+        return '1'
+    else:
+        return '0'
+
+def countTotal(lines):
+    line_list = []
+    for line in lines:
+        line_list.append([int(present(i)) for i in line.split()[1:]])
+    line_total = np.sum(line_list,axis = 0)
+    return line_total
 
 def countShared(lines, sn): #count nshare only, for shared kmer table
     shared = [[0] * sn for i in range(sn)]
@@ -50,6 +77,22 @@ def countShared(lines, sn): #count nshare only, for shared kmer table
                 if line[i]*line[j] != 0:
                     shared[i][j] += 1
     return shared
+
+def countTotal_shared(lines,sn):
+    line_list = []
+    shared = [[0] * sn for i in range(sn)]
+    for line in lines:
+        line = line.split()
+        if len(line) == sn+1:
+            line = line[1:]
+        line = [int(i) for i in line]
+        line_list.append([int(present(i)) for i in line])
+        for i in range(sn):
+            for j in range(i + 1, sn):
+                if line[i]*line[j] != 0:
+                    shared[i][j] += 1
+    line_total = np.sum(line_list,axis = 0)
+    return (line_total,shared)
 
 def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
     #check excutables
