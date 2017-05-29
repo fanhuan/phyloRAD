@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+            #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #  AAF.py
@@ -26,7 +26,7 @@ import sys, os, time, math
 import multiprocessing as mp
 import numpy as np
 
-version = '%prog 20170209.1'
+version = '%prog 20170529.1'
 
 '''
 function included:
@@ -133,16 +133,17 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
                 os.system("mv {}/{} {}/{}/".format(dataDir,fileName,dataDir,sample))
                 samples.append(sample)
     samples.sort()
-    sn = len(samples)
     print(time.strftime('%c'))
     print('SPECIES LIST:')
     for sample in samples:
         print(sample)
+
     ###Prepare kmer_count jobs
     jobList = []
     for sample in samples:
         outFile = '{}.pkdat.gz'.format(sample)
-        command = '{} -l {} -n {} -G {} -o {} -f '.format(kmerCount, k, n, memPerThread, outFile)
+        command = '{} -l {} -n {} -G {} -o {} -f '.format(kmerCount, k, n,
+                    memPerThread, outFile)
         command1 = ''
         for inputFile in os.listdir(os.path.join(dataDir, sample)):
             inputFile = os.path.join(dataDir, sample, inputFile)
@@ -165,7 +166,7 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
     jobs = []
     nJobs = 0
     batch = 0
-    count = 0
+
     nBatches = int(len(jobList) / nThreads)
     if len(jobList) % nThreads:
         nBatches += 1
@@ -190,7 +191,7 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
             nJobs += 1
         else:
             break
-        count += 1
+
 
     if nJobs:
         print(time.strftime('%c'))
