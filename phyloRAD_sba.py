@@ -101,7 +101,7 @@ for i, sample in enumerate(samples):
     command_sba += " '{}.pkdat.gz'".format(sample)
 
 command_sba += ' | cut -f 1 > sba.kmer'
-sba_sh = open("kmer_merge.sh",'w')
+sba_sh = open("kmer_merge.sh",'wt')
 sba_sh.write(command_sba)
 sba_sh.close()
 
@@ -144,10 +144,10 @@ for sample in samples:
  ###Run kmer_merge
 outFile = selection_dir+'.dat.gz'
 handle = smartopen(outFile, 'w')
-handle.write(('#-k {}\n'.format(kl)).encode())
-handle.write(('#-n {}\n'.format(n)).encode())
+handle.write(('#-k {}\n'.format(kl)).encode('latin-1'))
+handle.write(('#-n {}\n'.format(n)).encode('latin-1'))
 for i, sample in enumerate(samples):
-    handle.write(('#sample{}: {}\n'.format(i + 1, sample)).encode())
+    handle.write(('#sample{}: {}\n'.format(i + 1, sample)).encode('latin-1'))
 handle.close()
 
 command = "{} -k s -c -d '0' -a 'T,M,F'".format(filt)
