@@ -30,7 +30,7 @@ from AAF import smartopen, is_exe, countShared, aaf_kmercount, aaf_dist
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20161030.1'
+version = '%prog 20170529.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k for reconstruction, default = 25")
@@ -92,7 +92,7 @@ else:
 
 ###Run aaf_kmercount to get pkdat for each species
 
-samples = aaf_kmercount(dataDir,ks,n,options.nThreads,memSize/options.nThreads)
+samples = aaf_kmercount(dataDir,ks,n,nThreads,memSize/nThreads)
 
 ###Run kmer_merge
 command_sba = "{} -k s -c -d '0' -a A".format(filt)
