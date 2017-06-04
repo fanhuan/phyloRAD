@@ -25,18 +25,25 @@
 import sys, gzip, bz2, os, time, math
 import multiprocessing as mp
 
-version = '%prog 20161130.1'
+version = '%prog 20161204.1'
 
 def smartopen(filename,*args,**kwargs):
     if filename.endswith('gz'):
-        return gzip.open(filename,*args,**kwargs)
+        return gzip.open(filename,'rt',*args,**kwargs)
     elif filename.endswith('bz2'):
-        return bz2.BZ2File(filename,*args,**kwargs)
+        return bz2.BZ2File(filename,'rt',*args,**kwargs)
     else:
         return open(filename,*args,**kwargs)
 
 def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+def countTotal(lines):
+    line_list = []
+    for line in lines:
+        line_list.append([int(present(i)) for i in line.split()[1:]])
+    line_total = np.sum(line_list,axis = 0)
+    return line_total
 
 def countShared(lines, sn): #count nshare only, for shared kmer table
     shared = [[0] * sn for i in range(sn)]
