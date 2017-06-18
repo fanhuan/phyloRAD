@@ -24,19 +24,10 @@
 
 import sys, os, time, math
 import multiprocessing as mp
-<<<<<<< HEAD
-
-version = '%prog 20161204.1'
-
-def smartopen(filename,*args,**kwargs):
-    if filename.endswith('gz'):
-        return gzip.open(filename,'rt',*args,**kwargs)
-    elif filename.endswith('bz2'):
-        return bz2.BZ2File(filename,'rt',*args,**kwargs)
-=======
 import numpy as np
 
-version = '%prog 20170209.1'
+version = '%prog 20170618.1'
+
 
 '''
 function included:
@@ -56,22 +47,18 @@ def smartopen(filename, mode = 'rt'):
         return gzip.open(filename, mode)
     elif filename.endswith('bz2'):
         return bz2.BZ2File(filename, mode)
->>>>>>> 22baec9a1acfb94a5841666ba30445e7ed3a1239
     else:
-        return open(filename,*args,**kwargs)
+        return open(filename,mode)
 
 def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
-<<<<<<< HEAD
-=======
 def present(x,n=1):
     if int(x) >= n:
         return '1'
     else:
         return '0'
 
->>>>>>> 22baec9a1acfb94a5841666ba30445e7ed3a1239
 def countTotal(lines):
     line_list = []
     for line in lines:
