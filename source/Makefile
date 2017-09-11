@@ -40,7 +40,7 @@ kmer_merge: $(GENERIC_SRC) file_reader.c filter.c
 	$(GCC) $(CFLAGS_k) -o kmer_merge file_reader.c filter.c $(LIBS)
 
 ReadsSelector:
-	g++ ReadsSelectorV2.cpp -o ReadsSelector
+	$(GCC) -Wall ReadsSelectorV2.4.cpp -lstdc++ -lgzstream -lz -o ReadsSelector
 
 clean:
 	rm -rf *.o *.dSYM

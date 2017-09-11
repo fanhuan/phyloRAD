@@ -26,7 +26,8 @@ import sys, os, time, math
 import multiprocessing as mp
 import numpy as np
 
-version = '%prog 20170529.1'
+version = '%prog 20170618.1'
+
 
 '''
 function included:
@@ -47,7 +48,7 @@ def smartopen(filename, mode = 'rt'):
     elif filename.endswith('bz2'):
         return bz2.BZ2File(filename, mode)
     else:
-        return open(filename,*args,**kwargs)
+        return open(filename,mode)
 
 def is_exe(fpath):
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
