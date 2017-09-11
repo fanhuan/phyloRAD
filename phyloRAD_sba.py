@@ -122,7 +122,7 @@ os.system(command)
 #Run ReadsSelector
 for sample in samples:
     infiles = os.listdir(os.path.join(dataDir,sample))
-    command = '{} -k sba.kmer -fa 1 -o {}/{}_selected.fa '.format(ReadsSelector,selection_dir,sample)
+    command = '{} -k sba.kmer -fa 1 -o {}/{}_selected '.format(ReadsSelector,selection_dir,sample)
     for infile in infiles:
         command += '-s {}'.format(os.path.join(dataDir,sample,infile))
     print(command)
