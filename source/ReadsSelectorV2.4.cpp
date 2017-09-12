@@ -388,7 +388,7 @@ int main(int argc, char* argv[])
 		{
 			suffix = ".fa";
 		}
-		if (search_filenames[0].substr(search_filenames[0].size() -4, 4) == "a.gz" || search_filenames[0].substr(search_filenames1[0].size() -4, 4) == "A.gz" || FA == 1)
+		if (search_filenames[0].substr(search_filenames[0].size() -4, 4) == "a.gz" || search_filenames[0].substr(search_filenames[0].size() -4, 4) == "A.gz" || FA == 1)
 		{
 			suffix = ".fa.gz";
 		}
@@ -396,7 +396,7 @@ int main(int argc, char* argv[])
 		{
 			suffix = ".fq";
 		}
-		if (search_filenames[0].substr(search_filenames[0].size() -4, 4) == "q.gz" || search_filenames[0].substr(search_filenames1[0].size() -4, 4) == "Q.gz" || FA == 0)
+		if (search_filenames[0].substr(search_filenames[0].size() -4, 4) == "q.gz" || search_filenames[0].substr(search_filenames[0].size() -4, 4) == "Q.gz" || FA == 0)
 		{
 			suffix = ".fq.gz";
 		}

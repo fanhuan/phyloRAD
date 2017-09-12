@@ -30,7 +30,7 @@ from AAF import smartopen, is_exe, countShared, aaf_kmercount, aaf_dist
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20170529.1'
+version = '%prog 20170912.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k for reconstruction, default = 25")

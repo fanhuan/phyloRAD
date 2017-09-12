@@ -332,7 +332,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
                 dist[j][i] = dist[i][j] = 1
             else:
                 distance = (-1 / float(kl) * math.log(nshare[i][j] / mintotal))
-                print(mintotal,nshare[i][j])
+                #print(mintotal,nshare[i][j])
                 dist[j][i] = dist[i][j] = distance
                 nshare[j][i] = nshare[i][j]
 
