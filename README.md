@@ -18,7 +18,7 @@ Warning: the new version (where gzip files are taken) is only tested on linux.
 1. Download or clone this repo.  
 2. Install a c++ library called gzstream so that ReadsSelector could process gzipped files.  
 	i. `cd` into the subdirectory `source`   
-	ii. `tar xzvf gzstream.tgz`
+	ii. `tar xzvf gzstream.tgz`  
 	iii. Run `make`  
 	iv. Run `export CPLUS_INCLUDE_PATH=PATH_TO_phyRAD/source/gzstream`  
 	i. Run `export LIBRARY_PATH=PATH_TO_phyRAD/source/gzstream`
