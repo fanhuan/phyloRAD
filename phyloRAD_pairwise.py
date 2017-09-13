@@ -119,6 +119,7 @@ os.system(command)
 samples = aaf_kmercount(dataDir,ks,n,nThreads,memPerThread)
 
 ###Build distance matrix
+sn = len(samples)
 dist = [[0] * sn for i in range(sn)]
 for i in range(sn):
     for j in range(i+1,sn):
