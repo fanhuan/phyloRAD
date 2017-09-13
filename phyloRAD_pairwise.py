@@ -2,25 +2,25 @@
 # -*- coding: utf-8 -*-
 #
 #  phyloRAD_pairwise.py
-#  
+#
 #  Copyright 2016 Huan Fan <hfan22@wisc.edu>
 #
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 
 import sys, gzip, bz2, os, time, subprocess, math
 import multiprocessing as mp
@@ -29,7 +29,7 @@ from AAF import *
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20161025.1'
+version = '%prog 20170913.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k for reconstruction, default = 25")
@@ -78,14 +78,14 @@ else:
     filt = 'kmer_merge'
 
 #ReadsSelector
-if os.system('which ReadsSelector2 > /dev/null'):
-    ReadsSelector = './ReadsSelector2'
+if os.system('which ReadsSelector > /dev/null'):
+    ReadsSelector = './ReadsSelector'
     if not is_exe(filt):
         print('ReadsSelector not found. Make sure it is in your PATH or the')
         print('current directory, and that it is executable')
         sys.exit(1)
 else:
-    ReadsSelector = 'ReadsSelector2'
+    ReadsSelector = 'ReadsSelector'
 
 #fitch
 if os.system('which fitch_kmerX > /dev/null'):
