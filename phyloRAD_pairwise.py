@@ -67,6 +67,27 @@ if not os.path.isdir(dataDir):
 
 
 ###check for the executable files:
+#kmer_count
+if k > 25:
+    if os.system('which kmer_countx > /dev/null'):
+        kmerCount = './kmer_countx'
+        if not is_exe(kmerCount):
+            print('kmer_countx not found. Make sure it is in your PATH or the')
+            print('current directory, and that it is executable')
+            sys.exit(1)
+    else:
+        kmerCount = 'kmer_countx'
+
+else:
+    if os.system('which kmer_count > /dev/null'):
+        kmerCount = './kmer_count'
+        if not is_exe(kmerCount):
+            print('kmer_count not found. Make sure it is in your PATH or the')
+            print('current directory, and that it is executable')
+            sys.exit(1)
+    else:
+        kmerCount = 'kmer_count'
+
 #kmer_merge
 if os.system('which kmer_merge > /dev/null'):
     filt = './kmer_merge'
