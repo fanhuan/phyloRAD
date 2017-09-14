@@ -68,7 +68,7 @@ if not os.path.isdir(dataDir):
 
 ###check for the executable files:
 #kmer_count
-if k > 25:
+if kl > 25:
     if os.system('which kmer_countx > /dev/null'):
         kmerCount = './kmer_countx'
         if not is_exe(kmerCount):
