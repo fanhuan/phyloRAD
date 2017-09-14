@@ -161,10 +161,10 @@ for i in range(sn):
             os.system(comm)
         #kmer_count
         ntotal = []
-        command = '{} -l {} -n {} -G {} -o {}_temp.pkdat -f FA -i {}/{}_{}/{}.fa'.format(kmerCount,kl,n,memSize/2,samples[i],selection_dir,samples[i],samples[j],samples[i])
+        command = '{} -l {} -n {} -G {} -o {}_temp.pkdat -f FA -i {}/{}_{}/{}.*'.format(kmerCount,kl,n,memSize/2,samples[i],selection_dir,samples[i],samples[j],samples[i])
         output = subprocess.check_output(command,shell=True,stderr=subprocess.STDOUT)
         ntotal.append(float(output.decode('ascii').split()[1]))
-        command = '{} -l {} -n {} -G {} -o {}_temp.pkdat -f FA -i {}/{}_{}/{}.fa'.format(kmerCount,kl,n,memSize/2,samples[j],selection_dir,samples[i],samples[j],samples[j])
+        command = '{} -l {} -n {} -G {} -o {}_temp.pkdat -f FA -i {}/{}_{}/{}.*'.format(kmerCount,kl,n,memSize/2,samples[j],selection_dir,samples[i],samples[j],samples[j])
         output = subprocess.check_output(command,shell=True,stderr=subprocess.STDOUT)
         ntotal.append(float(output.decode('ascii').split()[1]))
         #kmer_merge
