@@ -11,6 +11,8 @@ Requirements
 + g++/gcc compilers
 + Python 2.7+ or higher (including 3.x)
 
+__Note that only v1.0 supports both python2.7 and python 3.x. v1.1+ only supports python3.5 and 3.6.__
+
 
 Installation:
 -------------
@@ -19,9 +21,10 @@ Warning: the new version (where gzip files are taken) is only tested on linux.
 2. Install a c++ library called gzstream so that ReadsSelector could process gzipped files.  
 	i. `cd` into the subdirectory `source`   
 	ii. `tar xzvf gzstream.tgz`  
-	iii. Run `make`  
-	iv. Run `export CPLUS_INCLUDE_PATH=PATH_TO_phyRAD/source/gzstream`  
-	i. Run `export LIBRARY_PATH=PATH_TO_phyRAD/source/gzstream`
+	iii. `cd gzstream`
+	iv. Run `make`  
+	v. Run `export CPLUS_INCLUDE_PATH=PATH_TO_phyRAD/source/gzstream`  
+	vi. Run `export LIBRARY_PATH=PATH_TO_phyRAD/source/gzstream`
 3. `cd ../` out into `source`, run `make all` and `make clean`  
 4. `cp` the executables you just compiled to your PATH or working directory, including consense, treedist, fitch_kmerX, fitch_kmerX_long, kmer_count(x), kmer_merge and ReadsSelector. 
 5. Make sure python knows where the AAF module is. You can achive this by 
