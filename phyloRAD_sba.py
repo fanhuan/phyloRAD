@@ -23,14 +23,14 @@
 #
 
 import sys, gzip, bz2, os, time
-import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor as PPE
 from optparse import OptionParser
-from AAF import smartopen, is_exe, countShared, aaf_kmercount, aaf_dist
+from AAF import smartopen, is_exe, countShared, aaf_kmercount, aaf_dist, run_command
 
 
 
 usage = "usage: %prog [options]"
-version = '%prog 20170912.1'
+version = '%prog 20171211.1'
 parser = OptionParser(usage = usage, version = version)
 parser.add_option("-k", dest = "kLen", type = int, default = 25,
                   help = "k for reconstruction, default = 25")
@@ -120,13 +120,16 @@ command = 'mkdir {}'.format(selection_dir)
 os.system(command)
 
 #Run ReadsSelector
+reads_cmd = []
 for sample in samples:
     infiles = os.listdir(os.path.join(dataDir,sample))
     command = '{} -k sba.kmer -fa 1 -o {}/{}_selected '.format(ReadsSelector,selection_dir,sample)
     for infile in infiles:
         command += '-s {}'.format(os.path.join(dataDir,sample,infile))
-    print(command)
-    os.system(command)
+    reads_cmd.append(command)
+with PPE(max_workers = nThreads) as executor:
+    executor.map(run_command,reads_cmd)
+
 
 #After selection
 samples = aaf_kmercount(selection_dir,kl,n,options.nThreads,memSize/options.nThreads)

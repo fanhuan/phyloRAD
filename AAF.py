@@ -30,6 +30,7 @@ version = '%prog 20171211.1'
 
 
 '''
+run_command
 function included:
 smartopen
 is_exe
