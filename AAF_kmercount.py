@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  AAF.py
+#  aaf_kmercount.py
 #
-#  Copyright 2016 Huan Fan <hfan22@wisc.edu>
+#  Copyright 2017 Huan Fan <hfan22@wisc.edu>
 #
 #
 #  This program is free software; you can redistribute it and/or modify
@@ -23,10 +23,10 @@
 #
 
 import sys, os, time, math
-import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor as PPE
 import numpy as np
 
-version = '%prog 20170618.1'
+version = '%prog 20171211.1'
 
 
 '''
@@ -41,6 +41,15 @@ aaf_kmercount
 aaf_dist
 
 '''
+def run_command(command):
+    print(command)
+    print(time.strftime('%c'))
+    try:
+        os.system(command)
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        raise
+
 def smartopen(filename, mode = 'rt'):
     import gzip, bz2
     if filename.endswith('gz'):
@@ -160,48 +169,9 @@ def aaf_kmercount(dataDir,k,n,nThreads,memPerThread):
             command1 += " -i '{}'".format(inputFile)
         command += '{}{}> {}.wc'.format(seqFormat,command1,sample)
         jobList.append(command)
-
-    jobList = jobList[::-1] #reverse the order
     ###Run jobs
-    pool = mp.Pool(nThreads)
-    jobs = []
-    nJobs = 0
-    batch = 0
-
-    nBatches = int(len(jobList) / nThreads)
-    if len(jobList) % nThreads:
-        nBatches += 1
-
-    while 1:
-        if nJobs == nThreads:
-            batch += 1
-            print(time.strftime('%c'))
-            print("running batch {}/{}".format(batch, nBatches))
-            for job in jobs:
-                print(job)
-                pool.apply_async(os.system(job))
-            pool.close()
-            pool.join()
-            pool = mp.Pool(nThreads)
-            nJobs = 0
-            jobs = []
-        if jobList:
-            command = jobList.pop()
-            jobs.append(command)
-            #job = pool.apply_async(runJob, args=[command, options.sim])
-            nJobs += 1
-        else:
-            break
-
-
-    if nJobs:
-        print(time.strftime('%c'))
-        print("running last batch")
-        for job in jobs:
-            print(job)
-            pool.apply_async(os.system(job))
-        pool.close()
-        pool.join()
+    with PPE(max_workers = nThreads) as executor:
+        executor.map(run_command,jobList)
     return samples
 
 

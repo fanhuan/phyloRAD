@@ -25,7 +25,9 @@
 import sys, gzip, bz2, os, time
 import multiprocessing as mp
 from optparse import OptionParser
-from AAF import smartopen, is_exe, countShared, aaf_kmercount, aaf_dist
+#from AAF import smartopen, is_exe, countShared, aaf_kmercount, aaf_dist
+from AAF import smartopen, is_exe, countShared, aaf_dist
+from AAF_kmercount import aaf_kmercount
 
 
 
