@@ -25,7 +25,7 @@
 import sys, gzip, bz2, os, time
 from concurrent.futures import ProcessPoolExecutor as PPE
 from optparse import OptionParser
-from AAF import smartopen, is_exe, countShared, aaf_kmercount, aaf_dist, run_command
+from AAF import smartopen, is_exe, countShared_single, aaf_kmercount, aaf_dist, run_command
 
 
 

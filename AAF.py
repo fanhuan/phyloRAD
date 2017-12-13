@@ -22,9 +22,10 @@
 #  MA 02110-1301, USA.
 #
 
-import sys, os, time, math
+import sys, os, time, math, psutil
 from concurrent.futures import ProcessPoolExecutor as PPE
 import numpy as np
+
 
 version = '%prog 20171211.1'
 
@@ -36,7 +37,7 @@ smartopen
 is_exe
 present
 countTotal
-countShared
+countShared_single
 countTotal_shared
 aaf_kmercount
 aaf_dist
@@ -76,17 +77,22 @@ def countTotal(lines):
     line_total = np.sum(line_list,axis = 0)
     return line_total
 
-def countShared(lines, sn): #count nshare only, for shared kmer table
+def countShared_single(line): #count nshare only, for shared kmer table
+    line = line.split()
+    if line[0][0].isdigit():
+        sn = len(line)
+        flag = 'd'
+    else:
+        sn = len(line) - 1
+        flag = 'k'
     shared = [[0] * sn for i in range(sn)]
-    for line in lines:
-        line = line.split()
-        if len(line) == sn+1:
-            line = line[1:]
-        line = [int(i) for i in line]
-        for i in range(sn):
-            for j in range(i + 1, sn):
-                if line[i]*line[j] != 0:
-                    shared[i][j] += 1
+    if flag == 'k':
+        line = line[1:]
+    line = [int(i) for i in line]
+    for i in range(sn):
+        for j in range(i + 1, sn):
+            if line[i]*line[j] != 0:
+                shared[i][j] += 1
     return shared
 
 def countTotal_shared(lines,sn):
@@ -238,55 +244,22 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     sn = len(samples)    #species number
     nshare = [[0] * sn for i in range(sn)]
 
-    ###Compute the number of lines to process per thread
+    ### It turns out to be very slow if we give very big chunks. So we will be
+    ### Using only 1G of RAM intotal. As a result, we could use all the cores
+    ### available, which was not possible for the kmer_count step.
+    cpu_num = psutil.cpu_count()
+    ###Compute the number of lines to process per thread (chunk size)
     line = iptf.readline()
     line_size = sys.getsizeof(line)
-    chunkLength = int(1024 ** 3 / nThreads / line_size)
+    chunkLength = int(1024 ** 3 / cpu_num / line_size)
     print('chunkLength = {}'.format(chunkLength))
 
     ###Compute shared kmer matrix
-    nJobs = 0
-    pool = mp.Pool(nThreads)
-    results = []
-    print('{} start running jobs'.format(time.strftime('%c')))
-    print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
-    while True:
-        if nJobs == nThreads:
-            pool.close()
-            pool.join()
-            for job in results:
-                shared = job.get()
-                for i in range(sn):
-                    for j in range(i + 1, sn):
-                        nshare[i][j] += shared[i][j]
-            pool = mp.Pool(nThreads)
-            nJobs = 0
-            results = []
-            print('{} running {} jobs'.format(time.strftime('%c'), nThreads))
-
-        lines = []
-        for nLines in range(chunkLength):
-            if not line: #if empty
-                break
-            lines.append(line)
-            line = iptf.readline()
-        if not lines: #if empty
-            break
-        job = pool.apply_async(countShared, args=[lines, sn])
-
-        results.append(job)
-        nJobs += 1
-
-    if nJobs:
-        print('{} running last {} jobs'.format(time.strftime('%c'), len(results)))
-        pool.close()
-        pool.join()
-        for job in results:
-            shared = job.get()
+    with PPE(max_workers = nThreads) as executor:
+        for result in executor.map(countShared_single,iptf,chunksize = chunkLength):
             for i in range(sn):
                 for j in range(i + 1, sn):
-                    nshare[i][j] += shared[i][j]
-
+                    nshare[i][j] += result[i][j]
     iptf.close()
 
     ###Compute distance matrix
@@ -324,7 +297,6 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
             ssl = sl[i] + ' ' * (10 - lsl)
         namedic[ssl] = sl[i]
         infile.write('\n{}'.format(ssl))
-        distfile.write('\n' + sl[i])
         for j in range(sn):
             infile.write('\t{}'.format(dist[i][j]))
 
