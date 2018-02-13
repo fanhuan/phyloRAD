@@ -255,7 +255,7 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     print('chunkLength = {}'.format(chunkLength))
 
     ###Compute shared kmer matrix
-    with PPE(max_workers = nThreads) as executor:
+    with PPE(max_workers = cpu_num) as executor:
         for result in executor.map(countShared_single,iptf,chunksize = chunkLength):
             for i in range(sn):
                 for j in range(i + 1, sn):
