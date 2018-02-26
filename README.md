@@ -34,9 +34,8 @@ Warning: the new version (where gzip files are taken) is only tested on linux.
 
 Usage and Examples: 
 ---------------
-__Input format__:
-
-Fasta or fastq. If there are multiple files for one sample, put them in one folder. 
+__Input__: Fasta or fastq files. If there are multiple files for one sample, put them in one folder.  
+__Output__: Newick format phylogenetic tree.
 
 Using __shared-by-all__ reads selection::
  
