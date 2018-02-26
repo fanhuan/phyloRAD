@@ -34,8 +34,11 @@ Warning: the new version (where gzip files are taken) is only tested on linux.
 
 Usage and Examples: 
 ---------------
+__Input format__:
 
-Using shared-by-all reads selection::
+Fasta or fastq. If there are multiple files for one sample, put them in one folder. 
+
+Using __shared-by-all__ reads selection::
  
 
     $ phyloRAD_sba.py -h
@@ -53,8 +56,11 @@ Using shared-by-all reads selection::
 	  -t NTHREADS  number of threads to use, default = 1
 	  -l           use fitch_kmerX_long instead of fitch_kmerX
 
-
-Using pairwise reads selection::
+__Example__:
+	
+	 $ phyloRAD_sba.py -d test_data -G 4 -t 2 -k 15 --ks 15 -n 2
+	 
+Using __pairwise__ reads selection::
 
     $ phyloRAD_pairwise.py -h
 	Usage: phyloRAD_pairwise.py [options]
@@ -71,13 +77,6 @@ Using pairwise reads selection::
 	  -l           use fitch_kmerX_long instead of fitch_kmerX
  
 
-Examples:
+__Examples__:
 
-The command used in generating Figure 5c in the phyloRAD paper:
-
-
-    $ phyloRAD_sba.py -d Quercus_CAVENDER-BARES -G 20 -t 5 -k 21 --ks 21 -n 2
-    
-The command used in generating Figure 5d in the phyloRAD paper:  
-
-	$ phyloRAD_pairwise.py -d Quercus_CAVENDER-BARES -G 20 -t 5 -k 21 --ks 21 -n 2
+	$ phyloRAD_pairwise.py -d test_data -G 4 -t 2 -k 15 --ks 15 -n 2
