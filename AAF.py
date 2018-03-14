@@ -253,13 +253,22 @@ def aaf_dist(datfile,countfile,nThreads,samples,kl,long=False):
     line_size = sys.getsizeof(line)
     chunkLength = int(1024 ** 3 / cpu_num / line_size)
     print('chunkLength = {}'.format(chunkLength))
+    while True:
+        lines = []
+        for nLines in range(chunkLength):
+            if not line: #if empty
+                break
+            lines.append(line)
+            line = iptf.readline()
+        if not lines: #if empty
+            break
+        ###Compute shared kmer matrix
+        with PPE(max_workers = cpu_num) as executor:
+            for result in executor.map(countShared_single,lines):
+                for i in range(sn):
+                    for j in range(i + 1, sn):
+                        nshare[i][j] += result[i][j]
 
-    ###Compute shared kmer matrix
-    with PPE(max_workers = cpu_num) as executor:
-        for result in executor.map(countShared_single,iptf,chunksize = chunkLength):
-            for i in range(sn):
-                for j in range(i + 1, sn):
-                    nshare[i][j] += result[i][j]
     iptf.close()
 
     ###Compute distance matrix
