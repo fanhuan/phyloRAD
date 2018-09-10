@@ -1,7 +1,12 @@
 **phyloRAD**
 ===========
 
-A package reconstructs phylogeny from RADseq data using alignment and assembly-free (AAF) method.
+A package reconstructs phylogeny from RADseq data using alignment and assembly-free (AAF) method. 
+
+Citation: 
+Reconstructing phylogeny from reduced‐representation genome sequencing data without assembly or alignment, Huan Fan, Anthony R Ives, Yann Surget‐Groba, June 2018, Molecular Ecology Resources
+DOI: 10.1111/1755-0998.12921, [Full text](https://rdcu.be/6cok)
+
 
 This package includes executables from Phylokmer (Author: Jue Ruan), PHYLIP (Author: Joe Felsenstein) and ReadsSelector (Author: Chengxi Ye).
 
